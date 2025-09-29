@@ -1,10 +1,10 @@
 {
-  "name": "checky-custom-bootstrap",
+  "name": "hahabuch-custom-bootstrap",
   "version": "1.0.0",
   "description": "HahaBuch Bootstrap theme",
   "scripts": {
-    "build:scss": "sass wwwroot/checky-bootstrap.scss:wwwroot/checky-bootstrap.css --style compressed",
-    "watch:scss": "sass --watch wwwroot/checky-bootstrap.scss:wwwroot/checky-bootstrap.css"
+    "build:scss": "sass wwwroot/hahabuch-bootstrap.scss:wwwroot/hahabuch-bootstrap.css --style compressed",
+    "watch:scss": "sass --watch wwwroot/hahabuch-bootstrap.scss:wwwroot/hahabuch-bootstrap.css"
   },
   "devDependencies": {
     "sass": "^1.62.0"
