@@ -1,0 +1,104 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>aspnet-HahaBuch-f23ae704-6fda-401c-84bb-055eaf9118c1</UserSecretsId>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <ScssFiles Include="$(MSBuildProjectDirectory)\**\*.scss" />
+    </ItemGroup>
+
+    <PropertyGroup>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <DockerfileContext>..\..</DockerfileContext>
+    </PropertyGroup>
+      
+    <!-- Create a timestamp file to track last scss build -->
+    <PropertyGroup>
+        <ScssTimestampFile>$(MSBuildProjectDirectory)\obj\scss-timestamp.txt</ScssTimestampFile>
+    </PropertyGroup>
+      
+    <Target Name="CheckScssChanges" BeforeTargets="Build">
+        <Touch Files="$(ScssTimestampFile)" AlwaysCreate="true" Condition="!Exists('$(ScssTimestampFile)')" />
+        
+        <!-- Check if any SCSS files are newer than timestamp -->
+        <ItemGroup>
+            <ScssChanged Include="@(ScssFiles)" Condition="$([System.IO.File]::GetLastWriteTime('%(FullPath)').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(ScssTimestampFile)').Ticks)" />
+        </ItemGroup>
+        
+        <PropertyGroup>
+            <ScssHasChanges Condition="'@(ScssChanged)' != ''">true</ScssHasChanges>
+        </PropertyGroup>
+    </Target>
+      
+    <!-- Run npm build only when SCSS files have changed -->
+    <Target Name="NpmBuild" AfterTargets="CheckScssChanges" Condition="'$(ScssHasChanges)' == 'true'">
+        <Message Text="SCSS changes detected. Running npm build..." Importance="high" />
+        <Exec Command="npm run build:scss" WorkingDirectory="$(MSBuildProjectDirectory)" />
+        
+        <!-- Update timestamp file after successful build -->
+        <Touch Files="$(ScssTimestampFile)" />
+    </Target>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.4">
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+          <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.Extensions.Localization" Version="9.0.5" />
+        <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.4" />
+        <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="9.0.4" />
+        <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="9.0.8" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.4" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.4" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.4" />
+        <ProjectReference Include="..\HahaBuch.Client\HahaBuch.Client.csproj" />
+        <ProjectReference Include="..\HahaBuch.Shared\HahaBuch.Shared.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Data\Migrations\" />
+      <Folder Include="wwwroot\lib\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Update="libman.json">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </Content>
+      <Content Update="package.json">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Update="Components\Pages\About.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>About.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Components\Account\Shared\ManageLayout.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>ManageLayout.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Components\Account\Pages\Manage\ChangePassword.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>ChangePassword.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="LocalizedIdentityErrorDescriber.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>LocalizedIdentityErrorDescriber.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Components\Account\Pages\Manage\UserOverview.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>UsersOverview.Designer.cs</LastGenOutput>
+        <DependentUpon>UserOverview.razor</DependentUpon>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Components\Account\Pages\Manage\UserOverview.de.resx">
+        <DependentUpon>UserOverview.razor</DependentUpon>
+      </EmbeddedResource>
+    </ItemGroup>
+
+</Project>

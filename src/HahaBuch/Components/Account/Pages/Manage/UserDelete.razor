@@ -1,0 +1,98 @@
+@page "/Account/Manage/User/Delete/{Id:guid}"
+@using HahaBuch.Data
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.Extensions.Localization
+
+@inject IdentityRedirectManager RedirectManager
+@inject ILogger<UserDelete> Logger
+@inject IStringLocalizer<UserOverview> UsersLoc
+
+@attribute [Authorize("SuperUser")]
+
+<PageTitle>@UsersLoc["DeleteUser"]</PageTitle>
+<h3>@UsersLoc["DeleteUser"]</h3>
+
+<StaticStatusMessage />
+
+<div class="alert alert-warning" role="alert">
+    <p>
+        <strong>@UsersLoc["DeleteUserWarning"]</strong>
+    </p>
+</div>
+<div class="row">
+    <div class="col-xl-6">
+        <EditForm Model="Input" FormName="delete-user-admin" OnValidSubmit="OnValidSubmitAsync" method="post">
+            <div class="input-group mb-3">
+                <div class="input-group-text">
+                    <InputCheckbox @bind-Value="Input.ImSureIWantToDelete" id="want-to-delete" class="form-check-input mt-0"/>
+                </div>
+                <input type="text" class="form-control" disabled value="@(String.Format(UsersLoc["DeleteUserCheckbox"], UserEntity.UserName))" />
+            </div>
+            
+            <button type="submit" class="w-100 btn btn-lg btn-danger">@UsersLoc["DeleteUser"]</button>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter] private HttpContext HttpContext { get; init; } = default!;
+    [Inject] private UserManager<ApplicationUserEntity> UserManager { get; init; } = default!;
+    [Inject] private ApplicationDbContext DbContext { get; init; } = default!;
+    [Parameter] public Guid id { get; init; }
+    
+    private ApplicationUserEntity UserEntity { get; set; } = default!;
+    
+    [SupplyParameterFromForm] private InputModel Input { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+        Input ??= new();     
+        UserEntity = (await UserManager.FindByIdAsync(id.ToString()))!;
+    }
+
+    private async Task OnValidSubmitAsync()
+    {
+        if (!Input.ImSureIWantToDelete)
+        {
+            RedirectManager.RedirectToCurrentPageWithStatus("You must confirm the deletion", HttpContext);
+            return;
+        }
+
+        Guid? vaultId = UserEntity.VaultEntityId;
+        var result = await UserManager.DeleteAsync(UserEntity);
+        if (!result.Succeeded)
+        {
+            
+            RedirectManager.RedirectToCurrentPageWithStatus("Could not delete user", HttpContext);
+            return;
+        }
+        
+        Logger.LogInformation("User with ID '{UserId}' ({UserName}) deleted by superuser.", id, UserEntity.UserName);
+        
+        // cleanup vault's if there is no other vault user left
+        if (vaultId is not null)
+        {
+            VaultEntity vaultEntity = await DbContext.Vaults
+                .Include(v => v.Users)
+                .FirstAsync(v => v.Id == vaultId);
+                
+            if (!vaultEntity.Users.Any())
+            {
+                DbContext.Vaults.Remove(vaultEntity);
+                await DbContext.SaveChangesAsync();
+                Logger.LogInformation("Vault with ID '{VaultId}' ({VaultName}) deleted by superuser.", vaultEntity.Id, vaultEntity.Name);
+            }
+        }
+        
+        RedirectManager.RedirectTo("Account/Manage/UserOverview");
+    }
+    
+    private sealed class InputModel
+    {
+        public bool ImSureIWantToDelete { get; set; }
+    }
+
+}

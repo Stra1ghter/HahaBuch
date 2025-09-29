@@ -1,0 +1,54 @@
+
+@import "lib/bootstrap/scss/functions";
+
+// default variable overrides
+@import "lib/bootstrap/scss/variables";
+@import "lib/bootstrap/scss/variables-dark";
+
+// map overrides
+$theme-colors: (
+  "primary":    $yellow-400,
+  "secondary":  $secondary,
+  "success":    $success,
+  "info":       $info,
+  "warning":    $warning,
+  "danger":     $danger,
+  "light":      $light,
+  "dark":       $dark
+);
+$input-color: $yellow-300;
+$input-focus-border-color: $yellow-300;
+
+$nav-pills-link-active-bg: $yellow-300;
+$nav-pills-link-active-color: black;
+$nav-link-color: $yellow-300;
+$nav-link-hover-color: $yellow-200;
+
+:root {
+  --body-bg-darker: color-mix(in srgb, var(--#{$prefix}body-bg), black 30%);
+  --content-line-separator: color-mix(in srgb, var(--#{$prefix}body-bg), white 30%); 
+}
+
+
+@import "lib/bootstrap/scss/maps";
+@import "lib/bootstrap/scss/mixins";
+@import "lib/bootstrap/scss/root";
+
+@import "lib/bootstrap/scss/utilities";
+@import "lib/bootstrap/scss/reboot";
+@import "lib/bootstrap/scss/type";
+@import "lib/bootstrap/scss/images";
+@import "lib/bootstrap/scss/containers";
+@import "lib/bootstrap/scss/grid";
+
+@import "lib/bootstrap/scss/buttons";
+@import "lib/bootstrap/scss/forms";
+@import "lib/bootstrap/scss/nav";
+@import "lib/bootstrap/scss/navbar";
+@import "lib/bootstrap/scss/tables";
+@import "lib/bootstrap/scss/modal";
+@import "lib/bootstrap/scss/close";
+@import "lib/bootstrap/scss/placeholders";
+@import "lib/bootstrap/scss/alert";
+
+@import "lib/bootstrap/scss/utilities/api";

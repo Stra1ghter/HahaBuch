@@ -1,0 +1,43 @@
+@using HahaBuch.Client.SharedComponents;
+
+@if (StatusMessage != null && !string.IsNullOrWhiteSpace(StatusMessage.Message))
+{
+    <div class="alert @GetAlertClass(StatusMessage.Type)" role="alert">
+        <i class="@GetIconClass(StatusMessage.Type)"></i>
+        @StatusMessage.Message
+    </div>
+}
+
+@code {
+    [Parameter] public StatusMessage? StatusMessage { get; set; }
+    [Parameter] public bool AutoDismiss { get; set; } = false;
+    [Parameter] public int AutoDismissDelay { get; set; } = 5000;
+
+    private string GetAlertClass(StatusType type) => type switch
+    {
+        StatusType.Success => "alert-success",
+        StatusType.Warning => "alert-warning", 
+        StatusType.Error => "alert-danger",
+        StatusType.Info => "alert-info",
+        _ => "alert-secondary"
+    };
+
+    private string GetIconClass(StatusType type) => type switch
+    {
+        StatusType.Success => "bi bi-check-circle",
+        StatusType.Warning => "bi bi-exclamation-triangle",
+        StatusType.Error => "bi bi-x-circle",
+        StatusType.Info => "bi bi-info-circle",
+        _ => "bi bi-chat"
+    };
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (AutoDismiss && StatusMessage != null)
+        {
+            await Task.Delay(AutoDismissDelay);
+            StatusMessage = null;
+            StateHasChanged();
+        }
+    }
+}

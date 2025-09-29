@@ -1,0 +1,78 @@
+﻿@page "/Account/Manage"
+
+@using Microsoft.AspNetCore.Identity
+@using HahaBuch.Data
+@using HahaBuch.SharedContracts.DataAnnotations
+@using Microsoft.Extensions.Localization
+
+@inject UserManager<ApplicationUserEntity> UserManager
+@inject SignInManager<ApplicationUserEntity> SignInManager
+@inject IdentityUserAccessor UserAccessor
+@inject IdentityRedirectManager RedirectManager
+@inject IStringLocalizer<SharedResources> Loc
+
+<PageTitle>@Loc["Profile"] </PageTitle>
+
+<h3>@Loc["Profile"]</h3>
+<StaticStatusMessage/>
+
+<div class="row">
+    <div class="col-xl-6">
+        <EditForm Model="Input" FormName="profile" OnValidSubmit="OnValidSubmitAsync" method="post">
+        <DataAnnotationsValidator/>
+        <div class="form-floating mb-3">
+        <input value="@email" id="email" class="form-control" disabled/>
+        <label for="email" class="form-label">@Loc["Email"]</label>
+            </div>
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Input.UserName" id="Input.Username" class="form-control" placeholder="Choose your username." />
+                <label for="Input.Username" class="form-label">@Loc["Username"]</label>
+                <ValidationMessage For="() => Input.UserName" class="text-danger"></ValidationMessage>
+            </div>
+            <button type="submit" class="w-100 btn btn-lg btn-primary">@Loc["Save"]</button>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private ApplicationUserEntity _userEntity = default!;
+    private string username;
+    private string email;
+
+    [CascadingParameter] private HttpContext HttpContext { get; set; } = default!;
+
+    [SupplyParameterFromForm] private InputModel Input { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _userEntity = await UserAccessor.GetRequiredUserAsync(HttpContext);
+        username = (await UserManager.GetUserNameAsync(_userEntity))!;
+        Input.UserName ??= username;
+
+        email = await UserManager.GetEmailAsync(_userEntity) ?? "";
+    }
+
+    private async Task OnValidSubmitAsync()
+    {
+        if (Input.UserName != username)
+        {
+            var setUserName = await UserManager.SetUserNameAsync(_userEntity, Input.UserName);
+            if (!setUserName.Succeeded)
+            {
+                string errorMessage = $"{Loc["Error"]}: {string.Join(", ", setUserName.Errors.Select(e => e.Description))}";
+                
+                RedirectManager.RedirectToCurrentPageWithStatus(errorMessage, HttpContext);
+            }
+        }
+        
+        await SignInManager.RefreshSignInAsync(_userEntity);
+        RedirectManager.RedirectToCurrentPageWithStatus(Loc["UpdatedHint"], HttpContext);
+    }
+
+    private sealed class InputModel
+    {
+        [LocalizedStringLength(3, 25)]
+        public string? UserName { get; set; }
+    }
+
+}

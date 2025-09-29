@@ -1,0 +1,21 @@
+﻿@using Microsoft.Extensions.Localization
+@inherits LayoutComponentBase
+@layout HahaBuch.Components.Layout.MainLayout
+@inject IStringLocalizer<ManageLayout> Loc
+
+<div class="container">
+    <h1>@Loc["ManageLayoutHeading"]</h1>
+
+    <div>
+        <h2>@Loc["ManageLayoutSubheading"]</h2>
+        <hr/>
+        <div class="row">
+            <div class="col-lg-3">
+                <ManageNavMenu/>
+            </div>
+            <div class="col-lg-9">
+                @Body
+            </div>
+        </div>
+    </div>
+</div>

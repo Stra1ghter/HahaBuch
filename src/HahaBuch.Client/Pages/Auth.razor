@@ -1,0 +1,121 @@
+﻿@using System.Globalization
+@using Microsoft.AspNetCore.Components.WebAssembly.Hosting
+@using Microsoft.Extensions.Localization
+@rendermode InteractiveServer // InteractiveAuto
+@inject IServiceProvider SP
+@inject IStringLocalizer<Auth> Loc
+@inject ILocalStorageService LocalStorage
+
+
+<h1>Culture Example 1</h1>
+
+<p>Greeting:<br/> @Loc["Greeting"]</p>
+
+<h2>Current culture</h2>
+
+<ul>
+    <li><b>CurrentCulture</b>: @CultureInfo.CurrentCulture</li>
+    <li><b>CurrentUICulture</b>: @CultureInfo.CurrentUICulture</li>
+</ul>
+
+<h2>Rendered values</h2>
+
+<ul>
+    <li><b>Date</b>: @dt</li>
+    <li><b>Number</b>: @number.ToString("N2")</li>
+    <li><b>Decimal</b>: @dec.ToString("N2")</li>
+</ul>
+
+<h2><code>&lt;input&gt;</code> elements that don't set a <code>type</code></h2>
+
+<p>
+    The following <code>&lt;input&gt;</code> elements use
+    <code>CultureInfo.CurrentCulture</code>.
+</p>
+
+<ul>
+    <li><label><b>Date:</b> <input @bind="dt" /></label></li>
+    <li><label><b>Number:</b> <input @bind="number" /></label></li>
+    <li><label><b>Decimal:</b> <input @bind="dec" /></label></li>
+</ul>
+
+<h2><code>&lt;input&gt;</code> elements that set a <code>type</code></h2>
+
+<p>
+    The following <code>&lt;input&gt;</code> elements use
+    <code>CultureInfo.InvariantCulture</code>.
+</p>
+
+<ul>
+    <li><label><b>Date:</b> <input type="datetime-local" @bind="dt" /></label></li>
+    <li><label><b>Number:</b> <input type="number" @bind="number" /></label></li>
+    <li><label><b>Decimal:</b> <input type="number" @bind="dec" /></label></li>
+</ul>
+
+<p>
+    Result datetime: @dt.ToString("yyyy-MM-dd HH:mm:ss")<br />
+    Result number: @number.ToString("N2")<br/>
+    Result number: @dec.ToString("N2")
+</p>
+
+<p>Environment @env</p>
+
+<input type="text" @bind="value" />
+<InputNumber @bind-Value="counter" />
+<button @onclick="Increase">Increase Counter</button>
+<button @onclick="StoreValue">Store value</button>
+<button @onclick="RetrieveValue">Retrieve stored value</button>
+
+@code {
+    private DateTime dt = DateTime.Now;
+    private double number = 1999.69;
+    private decimal dec = 0;
+    public string value = "init value";
+    public int counter = 0;
+    string env = "Server";
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        if (SP.GetService<IWebAssemblyHostEnvironment?>() != null)
+        {
+            env = "WebAssembly";
+        }
+
+    }
+
+    protected async override Task OnInitializedAsync()
+    {
+        if (RendererInfo.IsInteractive)
+        {
+            Item? item = await LocalStorage.GetItemAsync<Item?>("value");
+        }
+    }
+
+    public void StoreValue()
+    {
+        Item item = new(value, counter);
+        LocalStorage.SetItemAsync("value", item);
+    }
+
+    public async Task RetrieveValue()
+    {
+        Item? item= await LocalStorage.GetItemAsync<Item>("value");
+        if (item != null)
+        {
+            this.value = item.text;
+            this.counter = item.counter;
+        }
+        else
+        {
+            this.value = "No value stored";
+        }
+    }
+
+    public void Increase()
+    {
+        counter++;
+    }
+
+    record Item(string text, int counter);
+}

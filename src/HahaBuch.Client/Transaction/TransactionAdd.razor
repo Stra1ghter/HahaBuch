@@ -1,0 +1,15 @@
+@page "/transaction/add"
+@using HahaBuch.SharedContracts
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@rendermode InteractiveAuto
+@inject IStringLocalizer<SharedResources> Loc
+@attribute [Authorize]
+
+
+<div class="container mt-4">
+    <PageTitle>@Loc["TransactionAdd"]</PageTitle>
+    <h3>@Loc["TransactionAdd"]</h3>
+    
+    <TransactionPut />
+</div>

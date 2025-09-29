@@ -1,0 +1,60 @@
+@using System.Diagnostics.CodeAnalysis
+@using System.Globalization
+@using Microsoft.Extensions.Localization
+@inherits InputBase<decimal>
+@inject IStringLocalizer<SharedResources> Loc
+
+<div class="input-group">
+    @if (CultureInfo.CurrentUICulture.NumberFormat.CurrencySymbol[0] != '¤')
+    {
+        <span class="input-group-text">@CultureInfo.CurrentUICulture.NumberFormat.CurrencySymbol</span>
+    }
+    <input type="text"
+           name=@NameAttributeValue
+           class="@CssClass form-control"
+           value="@CurrentValueAsString"
+           @onchange="OnChange"
+           @attributes="AdditionalAttributes"/>
+</div>
+
+@code {
+    protected override string? FormatValueAsString(decimal value)
+        => value.ToString("#,##0.00", CultureInfo.CurrentCulture);    
+
+    private void OnChange(ChangeEventArgs e)
+    {
+        CurrentValueAsString = e.Value?.ToString();
+    }
+
+    protected override bool TryParseValueFromString(string? value, out decimal result, [NotNullWhen(false)] out string? validationErrorMessage)
+    {
+        result = 0;
+        validationErrorMessage = null;
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            validationErrorMessage= Loc["InvalidMoneyFormat"];
+            return false;
+        }
+
+        if (!decimal.TryParse(value, NumberStyles.Currency, CultureInfo.CurrentCulture, out result))
+        {
+            validationErrorMessage= Loc["InvalidMoneyFormat"];
+            return false;
+        }
+        
+        if (GetDecimalPlaces(result) > 2)
+        {
+            validationErrorMessage= Loc["InvalidMoneyFormatNumDecimalPlaces"];
+            return false;
+        }
+
+        return true;
+    }
+    
+    private static int GetDecimalPlaces(decimal value)
+    {
+        var bits = decimal.GetBits(value);
+        var scale = (bits[3] >> 16) & 0x7F;
+        return scale;
+    }    
+}

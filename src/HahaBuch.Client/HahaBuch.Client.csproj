@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
+        <StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
+    </PropertyGroup>
+    
+    <PropertyGroup>
+      <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.4" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="9.0.4" />
+        <PackageReference Include="Microsoft.Extensions.Localization" Version="9.0.5" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\HahaBuch.Shared\HahaBuch.Shared.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Update="Pages\Auth.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>Auth.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Pages\Auth.de.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>Auth.de.Designer.cs</LastGenOutput>
+        <DependentUpon>Auth.resx</DependentUpon>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Pages\Auth.en.resx">
+        <DependentUpon>Auth.resx</DependentUpon>
+      </EmbeddedResource>
+      <EmbeddedResource Update="SharedResources.resx">
+        <Generator></Generator>
+      </EmbeddedResource>
+    </ItemGroup>
+</Project>

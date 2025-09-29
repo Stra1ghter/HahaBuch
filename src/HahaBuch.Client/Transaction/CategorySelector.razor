@@ -1,0 +1,92 @@
+@using HahaBuch.SharedContracts
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@using HahaBuch.Client.SharedComponents
+@inject IStringLocalizer<SharedResources> Loc
+@inject ILocalStorageService LocalStorage
+
+
+<div class="row">
+    <div class="col-sm-4">
+<div class="btn-group" role="group" aria-label="Most used categories">
+            @foreach (var category in FastSelectableCategories)
+    {
+        <button type="button"
+                class="btn"
+                @attributes=GetButtonStyle(category)
+                @onclick="() => ValueChanged.InvokeAsync(category.Id)">
+            @category.Name
+        </button>
+    }
+</div>
+    </div>
+    <div class="col-sm-8">
+<InputSelect id="category" class="form-control" @bind-Value="Value">
+    <option value="">@Loc["CategorySelectLabel"]</option>
+    @foreach (var category in AvailableCategories)
+    {
+        <option value="@category.Id">@category.Name</option>
+    }
+</InputSelect>
+    </div>
+</div>
+@code {
+    [Parameter]
+    [EditorRequired]
+    public IEnumerable<CategoryDto> AvailableCategories { get; set; }
+
+    public IEnumerable<CategoryDto> FastSelectableCategories { get; set; } = [];
+
+    [Parameter]
+    public Guid? Value { get; set; } // The selected category ID
+
+    [Parameter]
+    public EventCallback<Guid?> ValueChanged { get; set; }
+
+    protected async override Task OnParametersSetAsync()
+    {
+        if (!RendererInfo.IsInteractive)
+            return; // e.g. during prerendering
+
+
+        string cacheKey = "LRUCategories";
+
+        var lruGuids = await LocalStorage.GetItemAsync<List<Guid>?>(cacheKey);
+        if (lruGuids == null || !lruGuids.Any())
+        {
+            FastSelectableCategories = AvailableCategories?.Take(5);
+        }
+        else
+        {
+            FastSelectableCategories = AvailableCategories
+                .Where(c => lruGuids.Contains(c.Id))
+                .OrderBy(c => lruGuids.IndexOf(c.Id))
+                .Take(5);
+
+            // Fill up with the first available categories if less than 5
+            FastSelectableCategories = FastSelectableCategories
+                .Concat(
+                    AvailableCategories
+                        .Where(c => !lruGuids.Contains(c.Id))
+                        .Take(5 - FastSelectableCategories.Count())
+                );
+        }
+    }
+
+    private async Task OnCategoryIdChanged(Guid? id)
+    {
+        Value = id;
+        await ValueChanged.InvokeAsync(id);
+    }
+
+    private Dictionary<string, object> GetButtonStyle(CategoryDto category)
+    {
+        var style = new List<string>();
+        if (!string.IsNullOrWhiteSpace(category.HtmlColorString))
+            style.Add($"background-color: {category.HtmlColorString}");
+
+        style.Add($"color: {(category.IsDarkColor ? "white" : "black")}");
+
+        return new Dictionary<string, object> { { "style", string.Join("; ", style) } };
+    }
+}

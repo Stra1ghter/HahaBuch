@@ -1,0 +1,150 @@
+@page "/Account/Manage/User/{id:guid}"
+@using System.ComponentModel.DataAnnotations
+@using HahaBuch.Data
+@using HahaBuch.SharedContracts.DataAnnotations
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.Extensions.Localization
+
+@inject IdentityRedirectManager RedirectManager
+@inject ILogger<UserEdit> Logger
+@inject IStringLocalizer<UserOverview> UsersLoc
+@inject IStringLocalizer<SharedResources> SharedLoc
+
+@attribute [Authorize("SuperUser")]
+
+<PageTitle>@UsersLoc["EditUser"]</PageTitle>
+<h3>@UsersLoc["EditUser"]: "@UserEntity.UserName"</h3>
+
+<StaticStatusMessage />
+
+<div class="row">
+    <div class="col-xl-6">
+        <EditForm Model="Input" FormName="user" OnValidSubmit="OnValidSubmitAsync" method="post">
+        <DataAnnotationsValidator/>
+        <div class="form-floating mb-3">
+            <InputText @bind-Value="Input.Email" id="email" class="form-control" placeholder="New email"/>
+            <label for="email" class="form-label">@SharedLoc["Email"]:</label>
+            <ValidationMessage For="() => Input.Email" class="text-danger"/>
+        </div>
+        <div class="form-floating mb-3">
+        <InputText @bind-Value="Input.UserName" id="username" class="form-control" placeholder="New username"/>
+        <label for="username" class="form-label">@SharedLoc["Username"]:</label>
+                <ValidationMessage For="() => Input.UserName" class="text-danger"/>
+            </div>
+            
+            <div class="alert alert-warning" role="alert">
+                <p>
+                    <strong>@UsersLoc["ChangeVaultWarning"]</strong>
+                </p>
+            </div>
+            <div class="form-floating mb-3">
+                <InputSelect @bind-Value="Input.VaultId" id="vault" class="form-select">
+                    @foreach (var vault in Vaults)
+                    {
+                        <option value="@vault.Id">@vault.Name</option>
+                    }
+                </InputSelect>
+                <label for="vault" class="form-label">@SharedLoc["Vault"]:</label>
+            </div>
+            <button type="submit" class="w-100 btn btn-lg btn-primary">@SharedLoc["Save"]</button>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter] private HttpContext HttpContext { get; init; } = default!;
+    [Parameter] public Guid Id { get; init; }
+    [Inject] private UserManager<ApplicationUserEntity> UserManager { get; init; } = default!;
+    [Inject] private ApplicationDbContext DbContext { get; init; } = default!;
+    
+    [SupplyParameterFromForm] private InputModel Input { get; set; } = new();
+
+    private ApplicationUserEntity UserEntity { get; set; } = default!;
+    private IEnumerable<VaultEntity> Vaults { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+        UserEntity = (await UserManager.FindByIdAsync(Id.ToString()))!;
+        
+        Input.Email ??= UserEntity.Email!;
+        Input.UserName ??= UserEntity.UserName!;
+        Input.VaultId ??= UserEntity.VaultEntityId.ToString();
+        
+        Vaults = await DbContext.Vaults
+            .AsNoTracking()
+            .ToListAsync();
+    }
+
+    private async Task OnValidSubmitAsync()
+    {
+        string message = "";
+        
+        // check if the email has been changed
+        if (Input.Email != UserEntity.Email)
+        {
+            IdentityResult result = await UserManager.SetEmailAsync(UserEntity, Input.Email);
+            if (!result.Succeeded)
+            {
+                RedirectManager.RedirectToCurrentPageWithStatus(SharedLoc["Error"] + ": " + UsersLoc["MailUpdateFail"], HttpContext);
+                return;
+            }
+
+            await DbContext.Users.Where(u => u.Id == UserEntity.Id)
+                    .ExecuteUpdateAsync(setters => setters.SetProperty(u =>  u.EmailConfirmed, true));
+            message += UsersLoc["MailUpdateSuccess"] + " ";
+        }
+        
+        // check if the username has been changed
+        if (Input.UserName != UserEntity.UserName)
+        {
+            IdentityResult result = await UserManager.SetUserNameAsync(UserEntity, Input.UserName);
+            if (!result.Succeeded)
+            {
+                RedirectManager.RedirectToCurrentPageWithStatus(SharedLoc["Error"] + ": " + UsersLoc["UsernameUpdateFail"], HttpContext);
+                return;
+            }
+            
+            message += UsersLoc["UsernameUpdateSuccess"] + " ";
+        }
+
+        // check if the vault has been changed
+        Guid newVaultId = Guid.Parse(Input.VaultId!);
+        if (newVaultId != UserEntity.VaultEntityId)
+        {
+            Guid oldVaultId = UserEntity.VaultEntityId!.Value;
+            UserEntity.VaultEntityId = newVaultId;
+            VaultEntity vaultEntity = await DbContext.Vaults
+                .Include(v => v.Users)
+                .FirstAsync(v => v.Id ==  oldVaultId);
+
+            message += UsersLoc["VaultUpdateSuccess"] + " ";
+
+            if (!vaultEntity.Users.Any())
+            {
+                DbContext.Vaults.Remove(vaultEntity);
+                Logger.LogInformation("Vault with ID '{VaultId}' ({VaultName}) deleted by superuser.", vaultEntity.Id, vaultEntity.Name);
+
+                message += String.Format(UsersLoc["PreviousVaultUpdateSuccess"] + " ", vaultEntity.Name);
+            }
+            await DbContext.SaveChangesAsync();
+        }
+       
+        RedirectManager.RedirectToCurrentPageWithStatus(UsersLoc["ProfileUpdateSuccess"] + message, HttpContext);
+    }
+    
+    private sealed class InputModel
+    {
+        [LocalizedRequired]
+        [LocalizedStringLength(3, 25)]
+        public string? UserName { get; set; }
+        
+        [LocalizedRequired]
+        [LocalizedEmailAddress]
+        public string? Email { get; set; }
+        
+        public string? VaultId { get; set; }
+    }
+}

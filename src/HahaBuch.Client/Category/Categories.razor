@@ -1,0 +1,164 @@
+﻿@page "/categories"
+@using System.Drawing
+@using HahaBuch.SharedContracts
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@using HahaBuch.Client.SharedComponents
+@using HahaBuch.SharedContracts.Exceptions
+@rendermode InteractiveAuto
+@inject ICategoryService CategoryService
+@inject IStringLocalizer<SharedResources> Loc
+@inject IJSRuntime JsRuntime
+
+@attribute [Authorize]
+
+<PageTitle>@Loc["Categories"]</PageTitle>
+
+<div class="container">
+    <h1>@Loc["Categories"]</h1>
+    <Status StatusMessage="_statusMessage" />
+
+    <p>@Loc["CategoriesDescription"]</p>
+
+    @if (_loading)
+    {
+        <LoadingIndicator />
+    }
+    else if (_categories.Count == 0)
+    {
+        <p>@Loc["CategoriesNotFound"]</p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>@Loc["Abbreviation"]</th>
+                <th>@Loc["Color"]</th>
+                <th>@Loc["Actions"]</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (CategoryDto category in _categories)
+            {
+                <tr>
+                    <td>
+                        @category.Name
+                    </td>
+                    <td>
+                        @category.Abbreviation
+                    </td>
+                    <td>
+                        <div class="color-box" style="background-color: @($"#{category.RgbColorString}")"></div>
+                    </td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="() => EditCategoryInModal(category)" data-bs-toggle="modal" data-bs-target="#editCategoriesModal">@Loc["Edit"]</button>
+                        <button class="btn btn-danger" @onclick="() => DeleteCategory(category.Id)">@Loc["Delete"]</button>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+
+    <button class="btn btn-primary" @onclick="CreateCategory" data-bs-toggle="modal" data-bs-target="#editCategoriesModal">@Loc["Add"]</button>
+</div>
+
+<!-- Modal for editing categories -->
+<div class="modal" id="editCategoriesModal" tabindex="-1" aria-labelledby="editCategoriesLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editCategoriesLabel">@(_currentCategory?.Id == Guid.Empty ? @Loc["Add"] : @Loc["Edit"])</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="_currentCategory" OnValidSubmit="UpdateCategory">
+                    <DataAnnotationsValidator/>
+                    <div class="mb-3">
+                        <label for="categoryName" class="form-label">Name</label>
+                        <InputText id="categoryName" class="form-control" @bind-Value="_currentCategory.Name"/>
+                        <ValidationMessage For="@(() => _currentCategory.Name)" class="text-danger"/>
+                    </div>
+                    <div class="mb-3">
+                        <label for="categoryAbbreviation" class="form-label">@Loc["Abbreviation"]</label>
+                        <InputText id="categoryAbbreviation" class="form-control" @bind-Value="_currentCategory.Abbreviation"/>
+                        <ValidationMessage For="@(() => _currentCategory.Abbreviation)" class="text-danger"/>
+                    </div>
+                    <div class="mb-3">
+                        <label for="categoryColor" class="form-label">@Loc["Color"]</label>
+                        <InputColor id="categoryColor" class="form-control" @bind-Value="_currentCategory.Color" ParsingErrorMessage="@Loc["InvalidColor"]"/>
+                    </div>
+                    <button type="submit" class="btn btn-primary">@Loc["Save"]</button>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+    <script>
+        function closeEditCategoriesModal()
+        {
+            console.log("Closing edit modal");
+            bootstrap.Modal.getInstance('#editCategoriesModal').hide();
+        }
+    </script>
+</div>
+
+
+@code {
+    private bool _loading = true;
+    private CategoryDto _currentCategory = new(Color.FromArgb(0,0,0,0));
+    private List<CategoryDto> _categories = new();
+    private StatusMessage? _statusMessage = null;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        _categories = await CategoryService.GetCategories();
+        _loading = false;
+    }
+
+    private void CreateCategory()
+    {
+        _currentCategory = CategoryDto.GenerateWithDefaultColor(_categories.Count);
+    }
+    
+    private void EditCategoryInModal(CategoryDto category)
+    {
+        _currentCategory = _categories.First(c => c.Id == category.Id);
+    }
+
+    private async Task UpdateCategory()
+    {
+        CategoryDto updatedCategory = await CategoryService.PutCategory(_currentCategory);
+        
+        if (_currentCategory.Id == Guid.Empty)
+        {
+            _categories.Add(updatedCategory);    
+        }
+        else
+        {
+            var index = _categories.IndexOf(_categories.First(c => c.Id == updatedCategory.Id));
+            _categories[index] = updatedCategory;
+        }
+
+        _statusMessage = null;
+        JsRuntime.InvokeVoidAsync("closeEditCategoriesModal");
+    }
+
+    private async Task DeleteCategory(Guid id)
+    {
+        if (id == Guid.Empty) return;
+
+        try
+        {
+            await CategoryService.DeleteCategory(id);
+            _categories.Remove(_categories.First(c => c.Id == id));
+            _statusMessage = null;
+        }
+        catch (ReferencedByEntitiesException)
+        {
+            _statusMessage = new StatusMessage(@Loc["CategoryReferencedException"], StatusType.Error);
+        }
+    }
+
+}

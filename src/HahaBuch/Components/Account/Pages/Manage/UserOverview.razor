@@ -1,0 +1,65 @@
+@page "/Account/Manage/UserOverview"
+@using HahaBuch.Data
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.Extensions.Localization
+
+@attribute [Authorize("SuperUser")]
+
+@inject UserManager<ApplicationUserEntity> UserManager
+@inject IStringLocalizer<SharedResources> Loc
+
+<PageTitle>@Loc["UserOverview"]</PageTitle>
+<h3>@Loc["UserOverview"]</h3>
+
+@if (!users.Any())
+{
+    <p>No users found.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>
+                <NavLink href="Account/Manage/User/Add">
+                    <button class="btn btn-primary btn-sm">@Loc["Add"]</button>
+                </NavLink>
+            </th>
+            <th>@Loc["Username"]</th>
+            <th>@Loc["Email"]</th>
+            <th>@Loc["Vault"]</th>
+            <th>@Loc["Actions"]</th>
+        </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in users)
+            {
+                <tr>
+                    <td title="@user.Id.ToString()">@user.Id.ToString().Substring(0,10)...</td>
+                    <td>@user.UserName</td>
+                    <td>@user.Email</td>
+                    <td>@user.VaultEntity?.Name</td>
+                    <td>
+                        <NavLink href="@($"Account/Manage/User/{user.Id}")">
+                            <button class="btn btn-primary btn-sm">@Loc["Edit"]</button>
+                        </NavLink>
+                    <NavLink href="@($"Account/Manage/User/Delete/{user.Id}")">
+                    <button class="btn btn-danger btn-sm">@Loc["Delete"]</button>
+                        </NavLink>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    IEnumerable<ApplicationUserEntity> users = default!;
+
+    protected override void OnInitialized()
+    {
+        users = UserManager.Users.Include(u => u.VaultEntity).AsNoTracking().ToList();
+    }
+}

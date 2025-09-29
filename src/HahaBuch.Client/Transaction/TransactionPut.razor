@@ -1,0 +1,146 @@
+@using HahaBuch.SharedContracts
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@using HahaBuch.Client.SharedComponents
+@rendermode InteractiveAuto
+@inject ITransactionService TransactionService
+@inject ICategoryService CategoryService
+@inject IStringLocalizer<SharedResources> Loc
+@inject ILocalStorageService LocalStorage
+@attribute [Authorize]
+
+<Status StatusMessage="StatusMessage" />
+
+@if (Categories == null)
+{
+    <LoadingIndicator />
+}
+else
+{
+    <EditForm Model="transaction" OnValidSubmit="HandleValidSubmit" FormName="transactionForm">
+        <DataAnnotationsValidator/>
+
+        <div class="row mb-3">
+            <div class="col-12 mb-3">
+                <label for="amount" class="form-label">@Loc["Amount"] </label>
+                <MoneyInput id="amount" @bind-Value="transaction.Amount" />
+                <ValidationMessage For="() => transaction.Amount" />
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-12">
+                <label for="category" class="form-label">@Loc["Category"] </label>
+                <CategorySelector AvailableCategories="Categories" @bind-Value="transaction.CategoryId" />
+                <ValidationMessage For="() => transaction.CategoryId"/>
+            </div>
+        </div>
+
+        <div class="mb-3 col-6">
+            <label for="date" class="form-label">@Loc["DateTime"] @Loc["OptionalLabelSuffix"]</label>
+            
+            @* Instead of InputDate, use HTML nativ control. This will render with InvariantCulture.
+            In effect, they are rendered using the browser-based control based on the selected browser language.
+             *@
+            <input id="date" class="form-control" type="datetime-local" @bind="transaction.DateTime"/>
+            <ValidationMessage For="() => transaction.DateTime" />
+        </div>
+
+        <div class="mb-3">
+            <label for="description" class="form-label">@Loc["Description"] @Loc["OptionalLabelSuffix"]</label>
+            <InputTextArea id="description" class="form-control" @bind-Value="transaction.Description"/>
+            <ValidationMessage For="() => transaction.Description" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            @if (transaction.Id == Guid.Empty)
+            {
+                @Loc["Add"]
+            }
+            else
+            {
+                @Loc["Save"]
+            }
+        </button>
+    </EditForm>
+}
+
+@code {
+    private StatusMessage? StatusMessage = null;
+
+    [Parameter] public TransactionDto transaction { get; set; } = new TransactionDto();
+
+    [Parameter] public EventCallback<TransactionDto> OnTransactionUpdated { get; set; }
+
+    [Parameter] public IEnumerable<CategoryDto> Categories { get; set; } = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Categories.Count() == 0)
+        {
+            Categories = await CategoryService.GetCategories();
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            TransactionDto result = await TransactionService.PutTransaction(transaction);
+            await UpdateLRUCategoriesAsync(result.CategoryId);
+
+            string message = transaction.Id == Guid.Empty
+                ? Loc["TransactionAddSuccess"]
+                : Loc["TransactionEditSuccess"];
+            StatusMessage = new StatusMessage
+            (
+                message,
+                StatusType.Success
+            );
+
+            if (transaction.Id != Guid.Empty)
+            {
+                await OnTransactionUpdated.InvokeAsync(result);
+            }
+
+            transaction = new();
+        }
+        catch (Exception ex)
+        {
+            // TODO: Handle specific exceptions when we have experience with what happens in practice
+            StatusMessage = new StatusMessage
+            (
+                Loc["TransactionAddException"] + " " + ex.Message,
+                StatusType.Error
+            );
+        }
+        StateHasChanged();
+    }
+
+    // Update the LRU cache for categories in local storage.
+    private async Task UpdateLRUCategoriesAsync(Guid? newCategoryGuid)
+    {
+        if (newCategoryGuid == null || !RendererInfo.IsInteractive)
+        {
+            return;
+        }
+
+        string cacheKey = "LRUCategories";
+        List<Guid>? lruCategories = await LocalStorage.GetItemAsync<List<Guid>?>(cacheKey);
+        if (lruCategories == null)
+        {
+            lruCategories = new List<Guid>();
+        }
+
+        lruCategories.Insert(0, newCategoryGuid.Value);
+        lruCategories = lruCategories.Distinct().Take(10).ToList(); // Keep only the 10 most recent categories
+
+        await LocalStorage.SetItemAsync(cacheKey, lruCategories);
+    }
+
+    protected override void OnParametersSet()
+    {
+        StatusMessage = null;
+    }
+
+}

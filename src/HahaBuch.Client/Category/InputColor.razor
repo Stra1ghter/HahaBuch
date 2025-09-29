@@ -1,0 +1,45 @@
+@using System.Diagnostics.CodeAnalysis
+@using System.Drawing;
+@using System.Text.RegularExpressions
+
+@inherits InputBase<Color>
+
+<input type="color" @attributes=AdditionalAttributes class="@CssClass color-box"  @bind=CurrentValueAsString />
+
+@code {
+    [Parameter]
+    public string ParsingErrorMessage { get; set; } = "Invalid color code format. Expected format: #RRGGBB";
+    
+    protected override string? FormatValueAsString(Color value)
+        => $"#{value.R:x2}{value.G:x2}{value.B:x2}";
+
+    // input must be two hex digits
+    private byte HexStringToByte(string hex)
+    {
+        const string hexChars = "0123456789abcdef";
+        hex = hex.ToLowerInvariant();
+        return (byte)((hexChars.IndexOf(hex[0]) << 4) + hexChars.IndexOf(hex[1]));
+    }
+    
+    private static Regex _hexColorRegex = new Regex(@"^#([0-9a-fA-F]{2}){3}$", RegexOptions.Compiled);
+
+    protected override bool TryParseValueFromString(string? value, out Color result, [NotNullWhen(false)] out string? validationErrorMessage)
+    {
+        Match match = _hexColorRegex.Match(value ?? "");
+        if (!match.Success)
+        {
+            validationErrorMessage = ParsingErrorMessage;
+            result = Color.Red;
+            return false;
+        }
+
+        byte r = HexStringToByte(match.Groups[1].Captures[0].Value);
+        byte g = HexStringToByte(match.Groups[1].Captures[1].Value);
+        byte b = HexStringToByte(match.Groups[1].Captures[2].Value);
+
+        validationErrorMessage = null;
+        result = Color.FromArgb(255, r, g, b);
+        return true;
+    }
+
+}

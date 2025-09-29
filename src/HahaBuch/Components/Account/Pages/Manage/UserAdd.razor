@@ -1,0 +1,127 @@
+@page "/Account/Manage/User/Add"
+@using System.ComponentModel.DataAnnotations
+@using System.Diagnostics
+@using HahaBuch.Data
+@using HahaBuch.SharedContracts.DataAnnotations
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.Extensions.Localization
+
+@inject IdentityRedirectManager RedirectManager
+@inject IStringLocalizer<UserOverview> UsersLoc
+@inject IStringLocalizer<SharedResources> SharedLoc 
+
+@attribute [Authorize("SuperUser")]
+
+<PageTitle>@UsersLoc["UserAdd"]</PageTitle>
+<h3>@UsersLoc["UserAdd"]</h3>
+
+<StaticStatusMessage />
+
+<div class="row">
+    <div class="col-xl-6">
+        <EditForm Model="Input" FormName="user" OnValidSubmit="OnValidSubmitAsync" method="post">
+        <DataAnnotationsValidator/>
+        <div class="form-floating mb-3">
+            <InputText @bind-Value="Input.Email" id="email" class="form-control" placeholder="Email"/>
+            <label for="email" class="form-label">@SharedLoc["Email"]:</label>
+            <ValidationMessage For="() => Input.Email" class="text-danger"/>
+        </div>
+        <div class="form-floating mb-3">
+            <InputText @bind-Value="Input.UserName" id="username" class="form-control" placeholder="Username"/>
+            <label for="username" class="form-label">@SharedLoc["Username"]:</label>
+            <ValidationMessage For="() => Input.UserName" class="text-danger"/>
+        </div>
+        <div class="form-floating mb-3">
+            <InputText @bind-Value="Input.Password" id="password" class="form-control" placeholder="Initial Password"/>
+            <label for="password" class="form-label">@SharedLoc["Password"]:</label>
+            <ValidationMessage For="() => Input.Password" class="text-danger"/>
+        </div>
+        <div class="form-floating mb-3">
+        <InputSelect @bind-Value="Input.VaultId" id="vault" class="form-select">
+            <option value="">@SharedLoc["CreateNew"]</option>
+            @foreach (var vault in Vaults)
+            {
+                <option value="@vault.Id">@vault.Name</option>
+            }
+        </InputSelect>
+        <label for="vault" class="form-label">@SharedLoc["Vault"]:</label>
+            </div>
+            <button type="submit" class="w-100 btn btn-lg btn-primary">@SharedLoc["Save"]</button>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter] private HttpContext HttpContext { get; init; } = default!;
+    [Inject] private UserManager<ApplicationUserEntity> UserManager { get; init; } = default!;
+    [Inject] private ApplicationDbContext DbContext { get; init; } = default!;
+    
+    private IEnumerable<VaultEntity> Vaults { get; set; }
+    
+    [SupplyParameterFromForm] private InputModel Input { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+        Vaults = await DbContext.Vaults
+            .AsNoTracking()
+            .ToListAsync();
+    }
+
+    private async Task OnValidSubmitAsync()
+    {
+        ApplicationUserEntity newUserEntity = new()
+        {
+            UserName = Input.UserName,
+            Email = Input.Email,
+            EmailConfirmed = true,
+        };
+        
+        if (string.IsNullOrEmpty(Input.VaultId))
+        {
+            newUserEntity.InitializeVault();
+        }
+        else
+        {
+            newUserEntity.VaultEntityId = Guid.Parse(Input.VaultId);
+        }
+        
+        IdentityResult result = await UserManager.CreateAsync(newUserEntity);
+        if (!result.Succeeded)
+        {
+            string errorMessage = string.Join(", ", result.Errors.Select(e => e.Description));
+            RedirectManager.RedirectToCurrentPageWithStatus($"{SharedLoc["Error"]}: {errorMessage}", HttpContext);
+            return;
+        }
+        
+        result = await UserManager.AddPasswordAsync(newUserEntity, Input.Password);
+        if (!result.Succeeded)
+        {
+            string errorMessage = string.Join(", ", result.Errors.Select(e => e.Description));
+            RedirectManager.RedirectToCurrentPageWithStatus($"{SharedLoc["Error"]}: {errorMessage}", HttpContext);
+            return;
+        }
+        
+        RedirectManager.RedirectToCurrentPageWithStatus(UsersLoc["ProfileUpdateSuccess"], HttpContext);
+    }
+    
+    private sealed class InputModel
+    {
+        [LocalizedRequired]
+        [LocalizedStringLength(3, 25)]
+        public string? UserName { get; set; }
+        
+        [LocalizedRequired]
+        [LocalizedEmailAddress]
+        public string? Email { get; set; }
+        
+        [LocalizedRequired]
+        [LocalizedStringLength(6, 100)]
+        public string? Password { get; set; }
+        
+        public string? VaultId { get; set; }
+    }
+
+}
