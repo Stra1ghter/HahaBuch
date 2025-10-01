@@ -9,8 +9,10 @@ using HahaBuch.SharedContracts;
 using HahaBuch.Transaction;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -87,22 +89,35 @@ builder.Services.AddIdentityCore<ApplicationUserEntity>(options =>
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUserEntity>, IdentityNoOpEmailSender>();
 
+// Configure forwarded headers
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    //options.KnownProxies.Add(IPAddress.Parse("10.0.0.100"));
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseWebAssemblyDebugging();
+    app.UseHttpsRedirection();
 }
-else
+else if (app.Environment.IsProduction())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
 
-await app.SetupDatabaseAsync();
-app.UseHttpsRedirection();
+    // If you want to run HahaBuch with kestrel being internet-facing, then enable the following code.
+    // app.UseHsts();
+    // app.UseHttpsRedirection();
+
+    // Else we assume that a reverse proxy (e.g. nginx) is used that handles TLS, HSTS, and HTTPS redirection.
+    // Read forwarded headers to correctly determine the originating IP and protocol.
+    app.UseForwardedHeaders(new ForwardedHeadersOptions
+    {
+        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+    });
+}
 
 app.UseRequestLocalization(new RequestLocalizationOptions()
     .AddSupportedCultures("en-US", "de-DE")
@@ -119,5 +134,7 @@ app.MapRazorComponents<App>()
 
 // Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints();
+
+await app.SetupDatabaseAsync();
 
 app.Run();

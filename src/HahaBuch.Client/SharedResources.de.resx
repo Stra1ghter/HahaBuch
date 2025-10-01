@@ -273,4 +273,85 @@
   <data name="Abbreviation" xml:space="preserve">
     <value>Abkürzung</value>
   </data>
+  <data name="ImprintLink" xml:space="preserve">
+    <value>Impressum, Datenschutz</value>
+  </data>
+  <data name="ImprintHeading" xml:space="preserve">
+    <value>Impressum</value>
+  </data>
+  <data name="ImprintContent" xml:space="preserve">
+    <value>Diese Website ist rein privat. Nach deutschem Recht (§ 5 DDG and § 18 MStV) ist daher kein Impressum nötig.</value>
+  </data>
+  <data name="ImprintGDPRHeading" xml:space="preserve">
+    <value>Datenschutzerklärung</value>
+  </data>
+  <data name="ImprintGDPRContent" xml:space="preserve">
+    <value>1. Verantwortlicher
+Simon Gensler
+
+2. Allgemeines zur Datenverarbeitung
+Wir nehmen den Schutz Ihrer persönlichen Daten sehr ernst. Diese Datenschutzerklärung informiert Sie darüber, welche Daten wir bei der Nutzung unserer Finanz-Tracker-Website erheben und wie wir diese verwenden.
+
+3. Erhobene Daten
+3.1 Kontodaten
+
+E-Mail-Adresse (für Registrierung und Login)
+Passwort (verschlüsselt gespeichert)
+
+3.2 Finanzdaten
+
+Einnahmen und Ausgaben
+Kategorisierungen Ihrer Transaktionen
+
+3.3 Technische Daten
+
+IP-Adresse
+Browser-Typ und Version
+Betriebssystem
+Zugriffszeitpunkte
+
+4. Zweck der Datenverarbeitung
+Wir verarbeiten Ihre Daten ausschließlich zur:
+
+Bereitstellung und Verbesserung unserer Dienste
+Verwaltung Ihres Benutzerkontos
+Speicherung Ihrer Finanzdaten für Tracking-Zwecke
+Gewährleistung der Systemsicherheit
+
+5. Rechtsgrundlage
+Die Verarbeitung erfolgt auf Grundlage von:
+
+Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung)
+Art. 6 Abs. 1 lit. f DSGVO (berechtigte Interessen)
+Art. 6 Abs. 1 lit. a DSGVO (Einwilligung)
+
+6. Datensicherheit
+Ihre Finanzdaten werden verschlüsselt übertragen (SSL/TLS) und gespeichert. Wir setzen technische und organisatorische Maßnahmen ein, um Ihre Daten vor unbefugtem Zugriff, Verlust oder Missbrauch zu schützen.
+Wichtig: Wir haben keinen Zugriff auf Ihre echten Bankkonten. Die Verbindung zu Bankkonten erfolgt ausschließlich lokal auf Ihrem Gerät bzw. über zertifizierte Drittanbieter.
+
+7. Weitergabe von Daten
+Wir geben Ihre Daten nicht an Dritte weiter.
+
+8. Speicherdauer
+Ihre Daten werden gespeichert, solange Ihr Konto aktiv ist. Nach Löschung Ihres Kontos werden alle personenbezogenen Daten innerhalb von 30 Tagen vollständig gelöscht, sofern keine gesetzlichen Aufbewahrungspflichten bestehen.
+
+9. Ihre Rechte
+Sie haben das Recht auf:
+
+Auskunft über Ihre gespeicherten Daten (Art. 15 DSGVO)
+Berichtigung unrichtiger Daten (Art. 16 DSGVO)
+Löschung Ihrer Daten (Art. 17 DSGVO)
+Einschränkung der Verarbeitung (Art. 18 DSGVO)
+Datenübertragbarkeit (Art. 20 DSGVO)
+Widerspruch gegen die Verarbeitung (Art. 21 DSGVO)
+
+10. Cookies
+Unsere Website verwendet notwendige Cookies zur Bereitstellung der Funktionalität. Diese sind für den Betrieb der Website erforderlich und können nicht deaktiviert werden. Wir verwenden keine Tracking- oder Marketing-Cookies.
+
+11. Beschwerderecht
+Sie haben das Recht, sich bei einer Datenschutz-Aufsichtsbehörde über die Verarbeitung Ihrer Daten zu beschweren.
+
+12. Änderungen
+Wir behalten uns vor, diese Datenschutzerklärung anzupassen, um sie an geänderte Rechtslage oder Änderungen unserer Dienste anzupassen. Die aktuelle Version finden Sie stets auf dieser Seite.</value>
+  </data>
 </root>

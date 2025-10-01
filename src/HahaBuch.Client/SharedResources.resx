@@ -273,4 +273,85 @@
   <data name="Abbreviation" xml:space="preserve">
     <value>Abbreviation</value>
   </data>
+  <data name="ImprintLink" xml:space="preserve">
+    <value>Imprint, privacy</value>
+  </data>
+  <data name="ImprintHeading" xml:space="preserve">
+    <value>Imprint</value>
+  </data>
+  <data name="ImprintContent" xml:space="preserve">
+    <value>This website is created purely for private means. In accordance with German law (§ 5 DDG and § 18 MStV) no imprint is required.</value>
+  </data>
+  <data name="ImprintGDPRHeading" xml:space="preserve">
+    <value>Privacy policy</value>
+  </data>
+  <data name="ImprintGDPRContent" xml:space="preserve">
+    <value>1. Data Controller
+Simon Gensler
+
+2. General Information on Data Processing
+We take the protection of your personal data very seriously. This privacy policy informs you about what data we collect when you use our finance tracker website and how we use it.
+
+3. Data Collected
+3.1 Account Data
+
+Email address (for registration and login)
+Password (stored encrypted)
+
+3.2 Financial Data
+
+Income and expenses
+Transaction categorizations
+
+3.3 Technical Data
+
+IP address
+Browser type and version
+Operating system
+Access times
+
+4. Purpose of Data Processing
+We process your data exclusively for:
+
+Providing and improving our services
+Managing your user account
+Storing your financial data for tracking purposes
+Ensuring system security
+
+5. Legal Basis
+Processing is based on:
+
+Art. 6 para. 1 lit. b GDPR (contract performance)
+Art. 6 para. 1 lit. f GDPR (legitimate interests)
+Art. 6 para. 1 lit. a GDPR (consent)
+
+6. Data Security
+Your financial data is transmitted and stored in encrypted form (SSL/TLS). We implement technical and organizational measures to protect your data from unauthorized access, loss, or misuse.
+Important: We do not have access to your actual bank accounts. Connection to bank accounts occurs exclusively locally on your device or through certified third-party providers.
+
+7. Disclosure of Data
+We do not share your data with third parties.
+
+8. Storage Duration
+Your data is stored as long as your account is active. After deleting your account, all personal data will be completely deleted within 30 days, unless there are legal retention obligations.
+
+9. Your Rights
+You have the right to:
+
+Access your stored data (Art. 15 GDPR)
+Rectification of incorrect data (Art. 16 GDPR)
+Erasure of your data (Art. 17 GDPR)
+Restriction of processing (Art. 18 GDPR)
+Data portability (Art. 20 GDPR)
+Object to processing (Art. 21 GDPR)
+
+10. Cookies
+Our website uses necessary cookies to provide functionality. These are required for the operation of the website and cannot be disabled. We do not use tracking or marketing cookies.
+
+11. Right to Complain
+You have the right to lodge a complaint with a data protection supervisory authority regarding the processing of your data.
+
+12. Changes
+We reserve the right to update this privacy policy to adapt it to changes in the legal situation or changes to our services. The current version can always be found on this page.</value>
+  </data>
 </root>
