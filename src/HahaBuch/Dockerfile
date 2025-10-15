@@ -1,8 +1,8 @@
 # See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
 # This stage is used when running from VS in fast mode (Default for Debug configuration)
-FROM mcr.microsoft.com/dotnet/aspnet:9.0-noble AS base
-#FROM mcr.microsoft.com/dotnet/aspnet:9.0-noble-chiseled-extra AS base
+#FROM mcr.microsoft.com/dotnet/aspnet:9.0-noble AS base
+FROM mcr.microsoft.com/dotnet/aspnet:9.0-noble-chiseled-extra AS base
 WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
@@ -27,7 +27,8 @@ RUN dotnet publish "./HahaBuch.csproj" -c $BUILD_CONFIGURATION -o /app/publish /
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
 WORKDIR /app
-RUN mkdir -p /data && chown $APP_UID /data
+#RUN mkdir -p /data && chown $APP_UID /data
+COPY --chown=$APP_UID --chmod=755 --from=build /mnt /data
 USER $APP_UID
 COPY --from=publish /app/publish .
 VOLUME /data
