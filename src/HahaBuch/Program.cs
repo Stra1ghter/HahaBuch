@@ -1,7 +1,6 @@
 using HahaBuch;
 using HahaBuch.Category;
 using HahaBuch.Client;
-using HahaBuch.Client.Pages;
 using HahaBuch.Components;
 using HahaBuch.Components.Account;
 using HahaBuch.Data;
@@ -115,7 +114,8 @@ else if (app.Environment.IsProduction())
     // Read forwarded headers to correctly determine the originating IP and protocol.
     app.UseForwardedHeaders(new ForwardedHeadersOptions
     {
-        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+        KnownNetworks = { new Microsoft.AspNetCore.HttpOverrides.IPNetwork(IPAddress.Parse("172.20.0.0"), 16) },
     });
 }
 
