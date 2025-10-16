@@ -21,6 +21,14 @@ else
         <DataAnnotationsValidator/>
 
         <div class="row mb-3">
+            <BinaryRadioButton @bind-Value="IsExpense"
+                               TrueLabel="Expense"
+                               FalseLabel="Income"
+                               ButtonVariant="outline-secondary"
+                                />
+        </div>
+
+        <div class="row mb-3">
             <div class="col-12 mb-3">
                 <label for="amount" class="form-label">@Loc["Amount"] </label>
                 <MoneyInput id="amount" @bind-Value="transaction.Amount" />
@@ -73,6 +81,8 @@ else
     [Parameter] public EventCallback<TransactionDto> OnTransactionUpdated { get; set; }
 
     [Parameter] public IEnumerable<CategoryDto> Categories { get; set; } = [];
+
+    private bool IsExpense = true;
 
     protected override async Task OnInitializedAsync()
     {

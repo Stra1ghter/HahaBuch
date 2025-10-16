@@ -1,0 +1,18 @@
+﻿.btn-group > .btn:first-of-type {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.btn-group > .btn:last-of-type {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+/* Remove whitespace between inline elements */
+.btn-group {
+    font-size: 0;
+}
+
+.btn-group > .btn {
+    font-size: 1rem; /* Reset font size for the buttons */
+}
