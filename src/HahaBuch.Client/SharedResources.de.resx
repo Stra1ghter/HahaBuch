@@ -171,6 +171,12 @@
   <data name="Vault" xml:space="preserve">
     <value>Tresor</value>
   </data>
+  <data name="Income" xml:space="preserve">
+    <value>Einkommen</value>
+  </data>
+  <data name="Expense" xml:space="preserve">
+    <value>Ausgabe</value>
+  </data>
   <data name="Actions" xml:space="preserve">
     <value>Aktionen</value>
   </data>
@@ -353,5 +359,8 @@ Sie haben das Recht, sich bei einer Datenschutz-Aufsichtsbehörde über die Vera
 
 12. Änderungen
 Wir behalten uns vor, diese Datenschutzerklärung anzupassen, um sie an geänderte Rechtslage oder Änderungen unserer Dienste anzupassen. Die aktuelle Version finden Sie stets auf dieser Seite.</value>
+  </data>
+  <data name="InvalidMoneyFormatNegative" xml:space="preserve">
+    <value>Eingabe kann nicht negativ sein.</value>
   </data>
 </root>

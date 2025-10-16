@@ -171,6 +171,12 @@
   <data name="Vault" xml:space="preserve">
     <value>Vault</value>
   </data>
+  <data name="Income" xml:space="preserve">
+    <value>Income</value>
+  </data>
+  <data name="Expense" xml:space="preserve">
+    <value>Expense</value>
+  </data>
   <data name="Actions" xml:space="preserve">
     <value>Actions</value>
   </data>
@@ -353,5 +359,8 @@ You have the right to lodge a complaint with a data protection supervisory autho
 
 12. Changes
 We reserve the right to update this privacy policy to adapt it to changes in the legal situation or changes to our services. The current version can always be found on this page.</value>
+  </data>
+  <data name="InvalidMoneyFormatNegative" xml:space="preserve">
+    <value>Money input cannot be negative.</value>
   </data>
 </root>

@@ -48,6 +48,12 @@
             return false;
         }
 
+        if (result < 0)
+        {
+            validationErrorMessage = Loc["InvalidMoneyFormatNegative"];
+            return false;
+        }
+
         return true;
     }
     

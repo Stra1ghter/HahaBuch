@@ -22,8 +22,8 @@ else
 
         <div class="row mb-3">
             <BinaryRadioButton @bind-Value="IsExpense"
-                               TrueLabel="Expense"
-                               FalseLabel="Income"
+                               TrueLabel="@Loc["Expense"]"
+                               FalseLabel="@Loc["Income"]"
                                ButtonVariant="outline-secondary"
                                 />
         </div>
@@ -96,6 +96,11 @@ else
     {
         try
         {
+            if (IsExpense)
+            {
+                transaction.Amount *= -1;
+            }
+
             TransactionDto result = await TransactionService.PutTransaction(transaction);
             await UpdateLRUCategoriesAsync(result.CategoryId);
 
@@ -151,6 +156,12 @@ else
     protected override void OnParametersSet()
     {
         StatusMessage = null;
-    }
 
+        IsExpense = false;
+        if (transaction.Amount <= 0)
+        {
+            IsExpense = true;
+            transaction.Amount *= -1; // Expense do not have a minus sign in the transaction editor.
+        }
+    }
 }
