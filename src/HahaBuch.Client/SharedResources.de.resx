@@ -363,4 +363,7 @@ Wir behalten uns vor, diese Datenschutzerklärung anzupassen, um sie an geänder
   <data name="InvalidMoneyFormatNegative" xml:space="preserve">
     <value>Eingabe kann nicht negativ sein.</value>
   </data>
+  <data name="ErrorDuringRequestMessage" xml:space="preserve">
+    <value>Bei deiner Anfrage ist ein Fehler aufgetreten.</value>
+  </data>
 </root>

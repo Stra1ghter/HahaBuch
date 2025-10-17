@@ -363,4 +363,7 @@ We reserve the right to update this privacy policy to adapt it to changes in the
   <data name="InvalidMoneyFormatNegative" xml:space="preserve">
     <value>Money input cannot be negative.</value>
   </data>
+  <data name="ErrorDuringRequestMessage" xml:space="preserve">
+    <value>An error occurred while processing your request.</value>
+  </data>
 </root>
