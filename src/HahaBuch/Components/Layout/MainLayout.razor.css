@@ -46,11 +46,19 @@ main {
     .top-row ::deep a, .top-row ::deep .btn-link {
         margin-left: 0;
     }
+
+    .non-mobile {
+        display: none;
+    }
 }
 
 @media (min-width: 641px) {
     .page {
         flex-direction: row;
+    }
+
+    .mobile {
+        display: none;
     }
 
     .sidebar {

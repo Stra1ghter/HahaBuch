@@ -3,7 +3,7 @@
 @inject IStringLocalizer<SharedResources> Loc
 
 <div class="page">
-    <div class="sidebar">
+    <div class="sidebar non-mobile">
         <NavMenu/>
     </div>
 
@@ -11,6 +11,10 @@
         <div class="top-row px-4">
             <a href="/" target="_blank">@Loc["About"]</a>
             <a href="/imprint" target="_blank">@Loc["ImprintLink"]</a>
+        </div>
+
+        <div class="sidebar mobile">
+            <NavMenu/>
         </div>
 
         <article class="content px-4">
