@@ -165,6 +165,9 @@
   <data name="Save" xml:space="preserve">
     <value>Save</value>
   </data>
+  <data name="SaveLc" xml:space="preserve">
+    <value>save</value>
+  </data>
   <data name="UpdatedHint" xml:space="preserve">
     <value>Updated data</value>
   </data>
@@ -209,6 +212,9 @@
   </data>
   <data name="Add" xml:space="preserve">
     <value>Add</value>
+  </data>
+  <data name="AddLc" xml:space="preserve">
+    <value>add</value>
   </data>
   <data name="CategorySelectLabel" xml:space="preserve">
     <value>Select a category</value>

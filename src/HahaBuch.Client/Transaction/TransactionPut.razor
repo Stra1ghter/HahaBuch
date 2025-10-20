@@ -63,11 +63,12 @@ else
         <button type="submit" class="btn btn-primary">
             @if (transaction.Id == Guid.Empty)
             {
-                @Loc["Add"]
+                @(IsExpense ? $"{Loc["Expense"]} {Loc["AddLc"]}" : $"{Loc["Income"]} {Loc["AddLc"]}")
+                ;
             }
             else
             {
-                @Loc["Save"]
+                @(IsExpense ? $"{Loc["Expense"]} {Loc["SaveLc"]}" : $"{Loc["Income"]} {Loc["SaveLc"]}");
             }
         </button>
     </EditForm>
