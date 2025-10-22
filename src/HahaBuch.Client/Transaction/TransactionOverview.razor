@@ -23,14 +23,10 @@
     {
         <LoadingIndicator />
     }
-    else if (!_transactions.Any())
-    {
-        <p>@Loc["TransactionsNotFound"]</p>
-    }
     else
     {
         <div class="table">
-            <QuickGrid Items="@_transactions">
+            <QuickGrid ItemsProvider="@_itemsProvider" @ref="TransactionsGrid" Virtualize=true >
                 <PropertyColumn Property="@(c => @FormatCurrency(c.Amount))" Sortable=true Title="@Loc["Amount"]" Align=Align.Right />
                 <PropertyColumn Property="@(c => c.Category)" Sortable=true Title="@Loc["Category"]" />
                 <PropertyColumn Property="@(c => c.DateTime)" Sortable=true Title="@Loc["DateTime"]" />
@@ -41,32 +37,6 @@
                 </TemplateColumn>
             </QuickGrid>
         </div>
-        <table class="table">
-            <thead>
-            <tr>
-                <th>@Loc["Amount"]</th>
-                <th>@Loc["Category"]</th>
-                <th>@Loc["DateTime"]</th>
-                <th>@Loc["Description"]</th>
-                <th>@Loc["Actions"]</th>
-            </tr>
-            </thead>
-            <tbody>
-            @foreach (TransactionOverviewDto transaction in _transactions)
-            {
-                <tr>
-                    <td>@FormatCurrency(transaction.Amount)</td>
-                    <td>@transaction.Category</td>
-                    <td>@transaction.DateTime.ToString("g")</td>
-                    <td>@transaction.Description</td>
-                    <td>
-                        <button type="button" class="btn btn-primary" @onclick="() => EditTransaction(transaction)" data-bs-toggle="modal" data-bs-target="#editTransaction">@Loc["Edit"]</button>
-                        <button type="button" class="btn btn-danger" @onclick="() => ToggleDeleteTransaction(transaction.Id)" data-bs-toggle="modal" data-bs-target="#deleteTransaction">@Loc["Delete"]</button>
-                    </td>
-                </tr>
-            }
-            </tbody>
-        </table>
     }
 </div>
 
@@ -123,9 +93,10 @@
 
 @code {
     private bool _loading = true;
-    private IQueryable<TransactionOverviewDto> _transactions = null!;
+    private GridItemsProvider<TransactionOverviewDto>? _itemsProvider;
     private TransactionDto? TransactionEditDto { get; set; }
     private IEnumerable<CategoryDto>? _categories { get; set; }
+    private QuickGrid<TransactionOverviewDto> TransactionsGrid;
     private Guid? DeleteTransactionId { get; set; }
     private bool ValidCurrencyInUiCulture => 
         CultureInfo.CurrentUICulture.NumberFormat.CurrencySymbol != "¤" && 
@@ -133,7 +104,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _transactions = (await TransactionService.GetTransactions()).AsQueryable();
+        _itemsProvider = TransactionService.GetTransactions;
         _loading = false;
         _categories = await CategoryService.GetCategories();
     }
@@ -154,14 +125,13 @@
         if (DeleteTransactionId.HasValue)
         {
             await TransactionService.DeleteTransaction(DeleteTransactionId.Value);
-            // TODO: uncomment
-            //_transactions.Remove(_transactions.First(t => t.Id == DeleteTransactionId.Value));
             DeleteTransactionId = null;
             await JSRuntime.InvokeVoidAsync("closeDeleteTransactionModal");
+            await TransactionsGrid.RefreshDataAsync();
         }
     }
 
-    private void TransactionUpdated(TransactionDto updatedTransaction)
+    private async Task TransactionUpdated(TransactionDto updatedTransaction)
     {
         // replace the edited transaction in the list
         TransactionOverviewDto updatedeOverviewDto = TransactionOverviewDto.MapFromTransactionDto(updatedTransaction);
@@ -170,9 +140,7 @@
             updatedeOverviewDto.Category = _categories?.FirstOrDefault(c => c.Id == updatedeOverviewDto.CategoryId)?.Name ?? string.Empty;
         }
 
-        // TODO: uncomment
-        // var index = _transactions.IndexOf(_transactions.First(t => t.Id == updatedeOverviewDto.Id));
-        // _transactions[index] = updatedeOverviewDto;
+        await TransactionsGrid.RefreshDataAsync();
 
         JSRuntime.InvokeVoidAsync("closeEditTransactionModal");
     }

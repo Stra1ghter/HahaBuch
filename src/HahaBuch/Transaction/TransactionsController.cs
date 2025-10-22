@@ -1,6 +1,7 @@
 using System.Transactions;
 using HahaBuch.SharedContracts;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components.QuickGrid;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HahaBuch.Transaction;
@@ -11,9 +12,13 @@ namespace HahaBuch.Transaction;
 public class TransactionsController(ITransactionService transactionService) : Controller
 {
     [HttpGet]
-    public async Task<IActionResult> GetAsync()
+    public async Task<IActionResult> GetAsync([FromQuery] int StartIndex = 0, [FromQuery] int Count = 50)
     {
-        IList<TransactionOverviewDto> transactions = await transactionService.GetTransactions();
+        GridItemsProviderResult<TransactionOverviewDto> transactions = await transactionService.GetTransactions(new GridItemsProviderRequest<TransactionOverviewDto>
+        {
+            StartIndex = StartIndex,
+            Count = Count
+        });
         return Ok(transactions);
     }
     

@@ -1,5 +1,6 @@
 using HahaBuch.Data;
 using HahaBuch.SharedContracts;
+using Microsoft.AspNetCore.Components.QuickGrid;
 using Microsoft.EntityFrameworkCore;
 
 namespace HahaBuch.Transaction;
@@ -30,19 +31,29 @@ public class TransactionService(IDbContextFactory<ApplicationDbContext> dbContex
         return TransactionEntity.MapToDto(entity);
     }
 
-    public async Task<IList<TransactionOverviewDto>> GetTransactions()
+    public async ValueTask<GridItemsProviderResult<TransactionOverviewDto>> GetTransactions(GridItemsProviderRequest<TransactionOverviewDto> request)
     {
         await using var context = await dbContextFactory.CreateDbContextAsync();
         Guid usersVaultId = await vaultAccessor.GetUsersVaultId();
         
-        var transactions = await context.Transactions
+        var query = context.Transactions
             .Where(t => t.VaultEntityId == usersVaultId)
             .Include(t => t.Category)
-            .OrderByDescending(t => t.DateTime)
+            .OrderByDescending(t => t.DateTime);
+        
+        var totalCount = await query.CountAsync();
+        
+        var transactions = await query
+            .Skip(request.StartIndex)
+            .Take(request.Count ?? 50)
             .Select(t => TransactionEntity.MapToOverviewDto(t))
             .ToListAsync();
         
-        return transactions;
+        return new GridItemsProviderResult<TransactionOverviewDto>
+        {
+            Items = transactions,
+            TotalItemCount = totalCount
+        };
     }
 
     public async Task DeleteTransaction(Guid transactionId)

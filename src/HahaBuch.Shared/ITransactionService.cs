@@ -1,4 +1,4 @@
-using System.Collections;
+using Microsoft.AspNetCore.Components.QuickGrid;
 
 namespace HahaBuch.SharedContracts;
 
@@ -8,8 +8,8 @@ namespace HahaBuch.SharedContracts;
 public interface ITransactionService
 {
     public Task<TransactionDto> PutTransaction(TransactionDto transactionDto);
-    
-    public Task<IList<TransactionOverviewDto>> GetTransactions();
+
+    public ValueTask<GridItemsProviderResult<TransactionOverviewDto>> GetTransactions(GridItemsProviderRequest<TransactionOverviewDto> request);
     
     public Task DeleteTransaction(Guid transactionId);
 }
