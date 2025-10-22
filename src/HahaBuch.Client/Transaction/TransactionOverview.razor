@@ -1,8 +1,11 @@
 @page "/transaction"
-@rendermode @(new InteractiveAutoRenderMode(prerender: false))
+@* @rendermode @(new InteractiveAutoRenderMode(prerender: false)) *@
+@rendermode InteractiveWebAssembly
 @using HahaBuch.SharedContracts
+@using Microsoft.AspNetCore.Components.QuickGrid
 @using Microsoft.Extensions.Localization
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components
 @using HahaBuch.Client.SharedComponents
 @using System.Globalization
 @inject ICategoryService CategoryService
@@ -20,12 +23,24 @@
     {
         <LoadingIndicator />
     }
-    else if (_transactions.Count == 0)
+    else if (!_transactions.Any())
     {
         <p>@Loc["TransactionsNotFound"]</p>
     }
     else
     {
+        <div class="table">
+            <QuickGrid Items="@_transactions">
+                <PropertyColumn Property="@(c => @FormatCurrency(c.Amount))" Sortable=true Title="@Loc["Amount"]" Align=Align.Right />
+                <PropertyColumn Property="@(c => c.Category)" Sortable=true Title="@Loc["Category"]" />
+                <PropertyColumn Property="@(c => c.DateTime)" Sortable=true Title="@Loc["DateTime"]" />
+                <PropertyColumn Property="@(c => c.Description)" Sortable=true Title="@Loc["Description"]" />
+                <TemplateColumn Title="@Loc["Actions"]">
+                        <button type="button" class="btn btn-primary" @onclick="() => EditTransaction(context)" data-bs-toggle="modal" data-bs-target="#editTransaction">@Loc["Edit"]</button>
+                        <button type="button" class="btn btn-danger" @onclick="() => ToggleDeleteTransaction(context.Id)" data-bs-toggle="modal" data-bs-target="#deleteTransaction">@Loc["Delete"]</button>
+                </TemplateColumn>
+            </QuickGrid>
+        </div>
         <table class="table">
             <thead>
             <tr>
@@ -108,7 +123,7 @@
 
 @code {
     private bool _loading = true;
-    private IList<TransactionOverviewDto> _transactions = null!;
+    private IQueryable<TransactionOverviewDto> _transactions = null!;
     private TransactionDto? TransactionEditDto { get; set; }
     private IEnumerable<CategoryDto>? _categories { get; set; }
     private Guid? DeleteTransactionId { get; set; }
@@ -118,7 +133,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _transactions = await TransactionService.GetTransactions();
+        _transactions = (await TransactionService.GetTransactions()).AsQueryable();
         _loading = false;
         _categories = await CategoryService.GetCategories();
     }
@@ -139,7 +154,8 @@
         if (DeleteTransactionId.HasValue)
         {
             await TransactionService.DeleteTransaction(DeleteTransactionId.Value);
-            _transactions.Remove(_transactions.First(t => t.Id == DeleteTransactionId.Value));
+            // TODO: uncomment
+            //_transactions.Remove(_transactions.First(t => t.Id == DeleteTransactionId.Value));
             DeleteTransactionId = null;
             await JSRuntime.InvokeVoidAsync("closeDeleteTransactionModal");
         }
@@ -154,8 +170,9 @@
             updatedeOverviewDto.Category = _categories?.FirstOrDefault(c => c.Id == updatedeOverviewDto.CategoryId)?.Name ?? string.Empty;
         }
 
-        var index = _transactions.IndexOf(_transactions.First(t => t.Id == updatedeOverviewDto.Id));
-        _transactions[index] = updatedeOverviewDto;
+        // TODO: uncomment
+        // var index = _transactions.IndexOf(_transactions.First(t => t.Id == updatedeOverviewDto.Id));
+        // _transactions[index] = updatedeOverviewDto;
 
         JSRuntime.InvokeVoidAsync("closeEditTransactionModal");
     }

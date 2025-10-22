@@ -58,3 +58,7 @@ h1:focus {
     width: 2em;
     height: 2em;
 }
+
+.quickgrid td {
+    padding: .5rem !important;
+}
