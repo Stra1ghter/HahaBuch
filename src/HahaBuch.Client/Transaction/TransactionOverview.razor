@@ -27,7 +27,7 @@
     {
         <div class="table">
             <QuickGrid ItemsProvider="@_itemsProvider" @ref="TransactionsGrid" Virtualize=true >
-                <PropertyColumn Property="@(c => @FormatCurrency(c.Amount))" Sortable=true Title="@Loc["Amount"]" Align=Align.Right />
+                <PropertyColumn Property="@(c => c.Amount.ToString("#,##0.00"))" Sortable=true Title="@AmountGridHeader" Align="Align.Right" />
                 <PropertyColumn Property="@(c => c.Category)" Sortable=true Title="@Loc["Category"]" />
                 <PropertyColumn Property="@(c => c.DateTime)" Sortable=true Title="@Loc["DateTime"]" />
                 <PropertyColumn Property="@(c => c.Description)" Sortable=true Title="@Loc["Description"]" />
@@ -89,6 +89,14 @@
     </script>
 </div>
 
+<style>
+.col-justify-right {
+    text-align: right;
+}
+td > button.btn {
+    padding: .2rem .4rem .2rem .2rem;
+}
+</style>
 
 
 @code {
@@ -98,9 +106,11 @@
     private IEnumerable<CategoryDto>? _categories { get; set; }
     private QuickGrid<TransactionOverviewDto> TransactionsGrid;
     private Guid? DeleteTransactionId { get; set; }
-    private bool ValidCurrencyInUiCulture => 
-        CultureInfo.CurrentUICulture.NumberFormat.CurrencySymbol != "¤" && 
-        !string.IsNullOrEmpty(CultureInfo.CurrentUICulture.NumberFormat.CurrencySymbol);
+    private string AmountGridHeader =>
+        CultureInfo.CurrentUICulture.NumberFormat.CurrencySymbol != "¤" && !string.IsNullOrEmpty(CultureInfo.CurrentUICulture.NumberFormat.CurrencySymbol)
+        ? $"{Loc["Amount"]} ({CultureInfo.CurrentUICulture.NumberFormat.CurrencySymbol})"
+        : Loc["Amount"];
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -144,9 +154,5 @@
 
         JSRuntime.InvokeVoidAsync("closeEditTransactionModal");
     }
-
-    // Format with currency symbol only if the current UI culture has a valid currency symbol defined.
-    // E.g. "de-DE" has "€", while "de" (without a region) only has "¤" as a placeholder.
-    private string FormatCurrency(decimal amount)
-        => ValidCurrencyInUiCulture ? amount.ToString("C") : amount.ToString();
 }
+
