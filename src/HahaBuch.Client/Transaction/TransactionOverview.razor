@@ -27,7 +27,15 @@
         <div class="table">
             <QuickGrid ItemsProvider="@_itemsProvider" @ref="TransactionsGrid" Virtualize=true >
                 <PropertyColumn Property="@(c => c.Amount.ToString("#,##0.00"))" Sortable=true Title="@AmountGridHeader" Align="Align.Right" />
-                <PropertyColumn Property="@(c => c.Category)" Sortable=true Title="@Loc["Category"]" />
+                <TemplateColumn Sortable=true Title="@Loc["Category"]" SortBy="@(GridSort<TransactionOverviewDto>.ByAscending(c => c.Category))">
+                    <div class="d-flex align-items-center">
+                        @if (!string.IsNullOrEmpty(context.CategoryColor))
+                        {
+                            <span class="category-color-indicator me-2" style="background-color: #@context.CategoryColor;"></span>
+                        }
+                        <span>@context.Category</span>
+                    </div>
+                </TemplateColumn>
                 <PropertyColumn Property="@(c => c.DateTime.ToString("d", CultureInfo.CurrentUICulture))" Sortable=true Title="@Loc["DateTime"]" />
                 <PropertyColumn Property="@(c => c.Description)" Sortable=true Title="@Loc["Description"]" />
                 <TemplateColumn Title="@Loc["Actions"]">
@@ -99,6 +107,13 @@
 td > button.btn {
     padding: .2rem .4rem .2rem .2rem;
 }
+.category-color-indicator {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 3px solid #dee2e6;
+}
 </style>
 
 
@@ -169,6 +184,7 @@ td > button.btn {
         if (updatedeOverviewDto.CategoryId != Guid.Empty)
         {
             updatedeOverviewDto.Category = _categories?.FirstOrDefault(c => c.Id == updatedeOverviewDto.CategoryId)?.Name ?? string.Empty;
+            updatedeOverviewDto.CategoryColor = _categories?.FirstOrDefault(c => c.Id == updatedeOverviewDto.CategoryId)?.RgbColorString ?? string.Empty;
         }
 
         await TransactionsGrid.RefreshDataAsync();

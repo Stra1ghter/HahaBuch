@@ -74,6 +74,7 @@ public class TransactionEntity
             Id = transactionEntity.Id,
             CategoryId = transactionEntity.CategoryEntityId,
             Category = transactionEntity.Category?.Name,
+            CategoryColor = transactionEntity.Category?.Color,
             Description = transactionEntity.Description,
             Amount = transactionEntity.Amount,
             DateTime = transactionEntity.DateTime

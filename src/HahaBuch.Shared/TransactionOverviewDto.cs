@@ -11,6 +11,11 @@ public class TransactionOverviewDto
 
     public string? Category { get; set; }
 
+    /// <summary>
+    /// The 6-character hex color code of the category (without #).
+    /// </summary>
+    public string? CategoryColor { get; set; }
+
     public string? Description { get; set; }
 
     public decimal Amount { get; set; }
@@ -32,7 +37,7 @@ public class TransactionOverviewDto
 
     /// <summary>
     /// Map from TransactionDto to TransactionOverviewDto.
-    /// NOTE: don't forget to set the category name manually if needed.
+    /// NOTE: don't forget to set the category name and color manually if needed.
     /// </summary>
     /// <param name="transactionDto">The transaction DTO to map from.</param>
     /// <returns>The mapped TransactionOverviewDTO.</returns>
@@ -44,5 +49,6 @@ public class TransactionOverviewDto
             Description = transactionDto.Description,
             Amount = transactionDto.Amount,
             DateTime = transactionDto.DateTime,
+            // Category and CategoryColor need to be set manually
         };
 }
