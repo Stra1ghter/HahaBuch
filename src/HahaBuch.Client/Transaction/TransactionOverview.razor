@@ -26,8 +26,8 @@
     {
         <div class="table">
             <QuickGrid ItemsProvider="@_itemsProvider" @ref="TransactionsGrid" Virtualize=true >
-                <PropertyColumn Property="@(c => c.Amount.ToString("#,##0.00"))" Sortable=true Title="@AmountGridHeader" Align="Align.Right" />
-                <TemplateColumn Sortable=true Title="@Loc["Category"]" SortBy="@(GridSort<TransactionOverviewDto>.ByAscending(c => c.Category))">
+                <PropertyColumn Property="@(c => c.Amount.ToString("#,##0.00"))" Title="@AmountGridHeader" Align="Align.Right" />
+                <TemplateColumn Title="@Loc["Category"]" Sortable=false >
                     <div class="d-flex align-items-center">
                         @if (!string.IsNullOrEmpty(context.CategoryColor))
                         {
@@ -36,9 +36,9 @@
                         <span>@context.Category</span>
                     </div>
                 </TemplateColumn>
-                <PropertyColumn Property="@(c => c.DateTime.ToString("d", CultureInfo.CurrentUICulture))" Sortable=true Title="@Loc["DateTime"]" />
-                <PropertyColumn Property="@(c => c.Description)" Sortable=true Title="@Loc["Description"]" />
-                <TemplateColumn Title="@Loc["Actions"]">
+                <PropertyColumn Property="@(c => c.DateTime.ToString("d", CultureInfo.CurrentUICulture))" Title="@Loc["DateTime"]" Sortable=false />
+                <PropertyColumn Property="@(c => c.Description)" Title="@Loc["Description"]" Sortable=false />
+                <TemplateColumn Title="@Loc["Actions"]" Sortable=false>
                         <button type="button" class="btn btn-primary" @onclick="() => EditTransaction(context)" data-bs-toggle="modal" data-bs-target="#editTransaction">@Loc["Edit"]</button>
                         <button type="button" class="btn btn-danger" @onclick="() => ToggleDeleteTransaction(context.Id)" data-bs-toggle="modal" data-bs-target="#deleteTransaction">@Loc["Delete"]</button>
                 </TemplateColumn>
