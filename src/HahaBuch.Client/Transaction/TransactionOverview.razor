@@ -1,6 +1,5 @@
 @page "/transaction"
-@* @rendermode @(new InteractiveAutoRenderMode(prerender: false)) *@
-@rendermode InteractiveWebAssembly
+@rendermode InteractiveAuto
 @using HahaBuch.SharedContracts
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using Microsoft.Extensions.Localization
@@ -16,6 +15,7 @@
 @attribute [Authorize]
 
 <div class="container mt-4">
+    @RendererInfo.Name
     <PageTitle>@Loc["TransactionOverview"]</PageTitle>
     <h3>@Loc["TransactionOverview"]</h3>
     
