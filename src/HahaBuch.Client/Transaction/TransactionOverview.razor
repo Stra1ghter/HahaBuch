@@ -15,7 +15,6 @@
 @attribute [Authorize]
 
 <div class="container mt-4">
-    @RendererInfo.Name
     <PageTitle>@Loc["TransactionOverview"]</PageTitle>
     <h3>@Loc["TransactionOverview"]</h3>
     
@@ -36,6 +35,10 @@
                         <button type="button" class="btn btn-danger" @onclick="() => ToggleDeleteTransaction(context.Id)" data-bs-toggle="modal" data-bs-target="#deleteTransaction">@Loc["Delete"]</button>
                 </TemplateColumn>
             </QuickGrid>
+            @if (_gridLoading || RendererInfo.Name == "Static")
+            {
+                <LoadingIndicator ShowButton="false" />
+            }
         </div>
     }
 </div>
@@ -101,6 +104,7 @@ td > button.btn {
 
 @code {
     private bool _loading = true;
+    private bool _gridLoading = false;
     private GridItemsProvider<TransactionOverviewDto>? _itemsProvider;
     private TransactionDto? TransactionEditDto { get; set; }
     private IEnumerable<CategoryDto>? _categories { get; set; }
@@ -114,9 +118,26 @@ td > button.btn {
 
     protected override async Task OnInitializedAsync()
     {
-        _itemsProvider = TransactionService.GetTransactions;
+        _itemsProvider = LoadTransactionsWithLoadingState;
         _loading = false;
         _categories = await CategoryService.GetCategories();
+    }
+
+    private async ValueTask<GridItemsProviderResult<TransactionOverviewDto>> LoadTransactionsWithLoadingState(GridItemsProviderRequest<TransactionOverviewDto> request)
+    {
+        _gridLoading = true;
+        StateHasChanged();
+        
+        try
+        {
+            var result = await TransactionService.GetTransactions(request);
+            return result;
+        }
+        finally
+        {
+            _gridLoading = false;
+            StateHasChanged();
+        }
     }
 
     private void EditTransaction(TransactionOverviewDto dto)
