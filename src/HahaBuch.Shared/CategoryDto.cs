@@ -13,8 +13,8 @@ public class CategoryDto
     [LocalizedStringLength(2, 20)]
     public string Name { get; set; } = null!;
     
-    [LocalizedStringLength(0, 4)]
-    public string? Abbreviation { get; set; }
+    [LocalizedStringLength(0, 120)]
+    public string? Description { get; set; }
     
     [LocalizedRequired]
     [LocalizedStringLength(6)]
