@@ -34,7 +34,7 @@
             <thead>
             <tr>
                 <th>Name</th>
-                <th>@Loc["Abbreviation"]</th>
+                <th>@Loc["Description"]</th>
                 <th>@Loc["Color"]</th>
                 <th>@Loc["Actions"]</th>
             </tr>
@@ -46,8 +46,8 @@
                     <td>
                         @category.Name
                     </td>
-                    <td>
-                        @category.Abbreviation
+                    <td style="max-width: 45vw">
+                        @category.Description
                     </td>
                     <td>
                         <div class="color-box" style="background-color: @($"#{category.RgbColorString}")"></div>
@@ -82,9 +82,9 @@
                         <ValidationMessage For="@(() => _currentCategory.Name)" class="text-danger"/>
                     </div>
                     <div class="mb-3">
-                        <label for="categoryAbbreviation" class="form-label">@Loc["Abbreviation"]</label>
-                        <InputText id="categoryAbbreviation" class="form-control" @bind-Value="_currentCategory.Abbreviation"/>
-                        <ValidationMessage For="@(() => _currentCategory.Abbreviation)" class="text-danger"/>
+                        <label for="categoryDescription" class="form-label">@Loc["Description"] @Loc["OptionalLabelSuffix"]</label>
+                        <InputTextArea id="categoryDescription" class="form-control" @bind-Value="_currentCategory.Description"/>
+                        <ValidationMessage For="@(() => _currentCategory.Description)" class="text-danger"/>
                     </div>
                     <div class="mb-3">
                         <label for="categoryColor" class="form-label">@Loc["Color"]</label>

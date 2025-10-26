@@ -27,9 +27,9 @@ public class CategoryEntity
     public string Name { get; set; } = null!;
 
     /// <summary>
-    /// A user-selected abbreviation for the category, e.g. "FO" for Food.
+    /// A user-selected description for the category, e.g. for tooltips when entering transactions.
     /// </summary>
-    [StringLength(4)] public string? Abbreviation { get; set; }
+    [StringLength(120)] public string? Description { get; set; }
     
     [StringLength(6)]
     public string Color { get; set; } = null!;
@@ -41,7 +41,7 @@ public class CategoryEntity
         {
             Id = categoryEntity.Id,
             Name = categoryEntity.Name,
-            Abbreviation = categoryEntity.Abbreviation,
+            Description = categoryEntity.Description,
             RgbColorString = categoryEntity.Color
         };
 
@@ -50,7 +50,7 @@ public class CategoryEntity
         {
             Id = category.Id,
             Name = category.Name,
-            Abbreviation = category.Abbreviation,
+            Description = category.Description,
             Color = category.RgbColorString,
             VaultEntityId = vaultId,
         };

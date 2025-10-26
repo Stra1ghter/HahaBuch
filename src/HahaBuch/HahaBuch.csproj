@@ -5,7 +5,7 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UserSecretsId>aspnet-HahaBuch-f23ae704-6fda-401c-84bb-055eaf9118c1</UserSecretsId>
-        <Version>0.0.7</Version>
+        <Version>0.0.8</Version>
     </PropertyGroup>
     
     <ItemGroup>
