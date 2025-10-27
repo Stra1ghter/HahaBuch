@@ -13,7 +13,7 @@
     {
         <button type="button"
                 class="btn"
-                @attributes=GetButtonStyle(category)
+                @attributes=GetButtonAttributes(category)
                 @onclick="() => ValueChanged.InvokeAsync(category.Id)">
             @category.Name
         </button>
@@ -30,6 +30,7 @@
 </InputSelect>
     </div>
 </div>
+
 @code {
     [Parameter]
     [EditorRequired]
@@ -47,7 +48,6 @@
     {
         if (!RendererInfo.IsInteractive)
             return; // e.g. during prerendering
-
 
         string cacheKey = "LRUCategories";
 
@@ -79,14 +79,24 @@
         await ValueChanged.InvokeAsync(id);
     }
 
-    private Dictionary<string, object> GetButtonStyle(CategoryDto category)
+    private Dictionary<string, object> GetButtonAttributes(CategoryDto category)
     {
+        var attributes = new Dictionary<string, object>();
+
+        // Add styling
         var style = new List<string>();
         if (!string.IsNullOrWhiteSpace(category.HtmlColorString))
             style.Add($"background-color: {category.HtmlColorString}");
 
         style.Add($"color: {(category.IsDarkColor ? "white" : "black")}");
+        attributes["style"] = string.Join("; ", style);
 
-        return new Dictionary<string, object> { { "style", string.Join("; ", style) } };
+        // Add Bootstrap tooltip attributes if description exists
+        if (!string.IsNullOrWhiteSpace(category.Description))
+        {
+            attributes["title"] = category.Description;
+        }
+        
+        return attributes;
     }
 }

@@ -1,0 +1,18 @@
+﻿@media (pointer: coarse), (hover: none) {
+    [title] {
+        position: relative;
+        display: inline-flex;
+        justify-content: center;
+    }
+
+    [title]:focus::after {
+        content: attr(title);
+        position: absolute;
+        top: 90%;
+        color: #fff;
+        background-color: var(--bs-body-bg);
+        border: 1px solid var(--bs-border-color);
+        width: fit-content;
+        padding: 3px;
+    }
+}
