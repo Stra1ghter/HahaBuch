@@ -44,6 +44,8 @@
     [Parameter]
     public EventCallback<Guid?> ValueChanged { get; set; }
 
+    private static int tabindex = 0;
+
     protected async override Task OnParametersSetAsync()
     {
         if (!RendererInfo.IsInteractive)
@@ -95,6 +97,7 @@
         if (!string.IsNullOrWhiteSpace(category.Description))
         {
             attributes["title"] = category.Description;
+            attributes["tabindex"] = tabindex++;
         }
         
         return attributes;
