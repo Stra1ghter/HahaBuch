@@ -1,0 +1,80 @@
+﻿<svg width="500" height="500" viewBox="0 0 @(radius * 2) @(radius * 2)">
+    <g transform="translate (@radius, @radius)">
+        @foreach (var slice in _slices)
+        {
+            <SvgPieSlice 
+                StartPoint="slice.StartPoint"
+                EndPoint="slice.EndPoint"
+                Radius="slice.Radius"
+                BackgroundColor=@slice.BackgroundColor
+                DataItem="slice.DataItem"
+                OnMouseOver="OnMouseOver"
+                OnMouseOut="OnMouseOut" />
+        }
+    </g>
+</svg>
+
+@if (selected.HasValue)
+{
+    <p>Selected slice @selected</p>
+}
+else
+{
+    <p>No slice selected</p>
+}
+
+@code {
+
+    // mocked test values
+    decimal[] values = new decimal[] { 10, 20, 30, 40 };
+    string[] colors = new string[] { "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0" };
+    private int? selected = null;
+
+    private const int radius = 100;
+    private readonly List<SvgPieSlice<int>> _slices = new();
+
+    protected override void OnParametersSet()
+    {
+        CalculateSlices();
+    }
+
+    private void CalculateSlices()
+    {
+        _slices.Clear();
+        decimal total = values.Sum();
+
+        double[] fractions = values.Select(v => (double)(v / total)).ToArray();
+        double currentAngle = Math.PI / 2;
+        Point lastEndPoint = new Point(0, -radius);
+
+        for (int i = 0; i < fractions.Length; i++)
+        {
+            currentAngle -= fractions[i] * 2 * Math.PI;
+            Point nextPoint = new Point(
+                radius * Math.Cos(currentAngle),
+                -1 * radius * Math.Sin(currentAngle) // -1 because the y-axis is flipped in SVG
+            );
+            _slices.Add(new SvgPieSlice<int>
+            {
+                DataItem = i,
+                StartPoint = lastEndPoint,
+                EndPoint = nextPoint,
+                Radius = radius,
+                BackgroundColor = colors[i],
+            });
+            lastEndPoint = nextPoint;
+        }
+    }
+
+    private void OnMouseOver(object? sender, int dataItem)
+    {
+        selected = dataItem;
+        StateHasChanged();
+    }
+
+    private void OnMouseOut(object? sender, int dataItem)
+    {
+        selected = null;
+        StateHasChanged();
+    }
+}

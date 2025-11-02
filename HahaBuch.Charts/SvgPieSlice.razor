@@ -1,0 +1,68 @@
+﻿@using System.Text
+@using Microsoft.AspNetCore.Components.Web
+@using System.Globalization
+@attribute [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+@typeparam T
+
+<path class="pie-slice"
+    d="@_pathData"
+    fill="@BackgroundColor" 
+    stroke="#fff"
+    @onmouseover=HandleMouseOver
+    @onmouseout=HandleMouseOut /> 
+
+@code {
+
+    [Parameter]
+    public Point StartPoint { get; set; }
+
+    [Parameter]
+    public Point EndPoint { get; set; }
+
+    [Parameter]
+    public int Radius { get; set; } = 100; // default view box 200x200
+
+    [Parameter]
+    public string BackgroundColor { get; set; } = "black";
+
+    /// <summary>
+    /// The data item that the svg pie slice represents.
+    /// </summary>
+    [Parameter]
+    public T? DataItem { get; set;  }
+
+    [Parameter]
+    public EventHandler<T>? OnMouseOver { get; set; }
+
+    [Parameter]
+    public EventHandler<T>? OnMouseOut { get; set; }
+
+    private string _pathData = string.Empty;
+
+    protected override void OnParametersSet()
+    {
+        // Draw an SVG path as a pie slice and store that in _pathData
+        // The logic here assumes that the path is centered at (0,0)
+        StringBuilder sb = new();
+        string sx = StartPoint.X.ToString("0.########", CultureInfo.InvariantCulture);
+        string sy = StartPoint.Y.ToString("0.########", CultureInfo.InvariantCulture);
+        string ex = EndPoint.X.ToString("0.########", CultureInfo.InvariantCulture);
+        string ey = EndPoint.Y.ToString("0.########", CultureInfo.InvariantCulture);
+
+        sb.Append($"M {sx} {sy} "); // Move to center
+        sb.Append($"A {Radius} {Radius} 0 0 1 {ex} {ey} "); // Draw arc
+        sb.Append($"L 0 0 Z"); // Line to center and close path
+        _pathData = sb.ToString();
+
+    }
+
+    private void HandleMouseOver(MouseEventArgs eventArgs)
+    {
+        OnMouseOver?.Invoke(this, DataItem);
+    }
+
+    private void HandleMouseOut(MouseEventArgs eventArgs)
+    {
+        OnMouseOut?.Invoke(this, DataItem);
+    }
+}

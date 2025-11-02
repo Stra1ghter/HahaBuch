@@ -20,6 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\HahaBuch.Charts\HahaBuch.Charts.csproj" />
       <ProjectReference Include="..\HahaBuch.Shared\HahaBuch.Shared.csproj" />
     </ItemGroup>
 

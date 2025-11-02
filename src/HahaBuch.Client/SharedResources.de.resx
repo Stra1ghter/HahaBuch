@@ -213,6 +213,9 @@
   <data name="Add" xml:space="preserve">
     <value>Hinzufügen</value>
   </data>
+  <data name="Analysis" xml:space="preserve">
+    <value>Analyse</value>
+  </data>
   <data name="AddLc" xml:space="preserve">
     <value>hinzufügen</value>
   </data>

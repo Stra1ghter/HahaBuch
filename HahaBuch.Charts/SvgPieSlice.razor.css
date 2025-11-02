@@ -1,0 +1,7 @@
+﻿.pie-slice {
+    transition: filter .2s;
+}
+
+.pie-slice:hover {
+    filter: brightness(1.2);
+}
