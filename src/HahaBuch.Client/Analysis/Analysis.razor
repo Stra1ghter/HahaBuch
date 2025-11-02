@@ -3,18 +3,57 @@
 @using Microsoft.AspNetCore.Authorization
 @using HahaBuch.Charts;
 @using Microsoft.Extensions.Localization
+@using HahaBuch.SharedContracts
 @inject IStringLocalizer<SharedResources> Loc
+@inject IAnalysisService AnalysisService
 
 @attribute [Authorize]
 
 <h3>@Loc["LocalDataStoreSlot"]</h3>
 
+@if (_loading)
+{
+    <p>Loading analysis...</p>
+}
+else if (_totals.Count == 0)
+{
+    <p>No data for @_year.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Expenses</th>
+                <th>Income</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var t in _totals)
+        {
+            <tr>
+                <td>@t.Category</td>
+                <td>@t.ExpenseTotal</td>
+                <td>@t.IncomeTotal</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
 <PieChart />
 
 @code {
+    private List<CategoryYearTotalDto> _totals = new();
+    private bool _loading = true;
+    private int _year = DateTime.Now.Year;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        base.OnInitialized();
+        if (!RendererInfo.IsInteractive)
+            return; // skip during prerender
+        _totals = await AnalysisService.GetCategoryYearTotals(_year);
+        _loading = false;
     }
 }

@@ -1,4 +1,5 @@
 using HahaBuch;
+using HahaBuch.Analysis;
 using HahaBuch.Category;
 using HahaBuch.Client;
 using HahaBuch.Components;
@@ -32,6 +33,7 @@ builder.Services.AddScoped<VaultAccessor, VaultAccessor>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<ILocalStorageService, LocalStorageService>();
+builder.Services.AddScoped<IAnalysisService, AnalysisService>();
 builder.Services.AddControllers();
 builder.Services.AddLocalization();
 
