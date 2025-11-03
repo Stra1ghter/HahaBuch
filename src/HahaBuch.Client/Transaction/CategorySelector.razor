@@ -8,26 +8,26 @@
 
 <div class="row">
     <div class="col-sm-4">
-<div class="btn-group" role="group" aria-label="Most used categories">
+        <div class="btn-group" role="group" aria-label="Most used categories">
             @foreach (var category in FastSelectableCategories)
-    {
-        <button type="button"
-                class="btn"
-                @attributes=GetButtonAttributes(category)
-                @onclick="() => ValueChanged.InvokeAsync(category.Id)">
-            @category.Name
-        </button>
-    }
-</div>
+            {
+            <button type="button"
+                    class="btn"
+                    @attributes=GetButtonAttributes(category)
+                    @onclick="() => ValueChanged.InvokeAsync(category.Id)">
+                @category.Name
+            </button>
+            }
+        </div>
     </div>
     <div class="col-sm-8">
-<InputSelect id="category" class="form-control" @bind-Value="Value">
-    <option value="">@Loc["CategorySelectLabel"]</option>
-    @foreach (var category in AvailableCategories)
-    {
-        <option value="@category.Id">@category.Name</option>
-    }
-</InputSelect>
+    <InputSelect id="category" class="form-control" @bind-Value="Value">
+        <option value="">@Loc["CategorySelectLabel"]</option>
+        @foreach (var category in AvailableCategories)
+        {
+            <option value="@category.Id">@category.Name</option>
+        }
+    </InputSelect>
     </div>
 </div>
 
