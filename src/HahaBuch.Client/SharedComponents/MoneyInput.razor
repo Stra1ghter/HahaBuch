@@ -1,6 +1,7 @@
 @using System.Diagnostics.CodeAnalysis
 @using System.Globalization
 @using Microsoft.Extensions.Localization
+@using Microsoft.AspNetCore.Components
 @inherits InputBase<decimal>
 @inject IStringLocalizer<SharedResources> Loc
 
@@ -10,14 +11,19 @@
         <span class="input-group-text">@CultureInfo.CurrentUICulture.NumberFormat.CurrencySymbol</span>
     }
     <input type="text"
-           name=@NameAttributeValue
+           @ref="_inputRef"
+           name="@NameAttributeValue"
            class="@CssClass form-control"
            value="@CurrentValueAsString"
+           onfocus="this.select()"  
            @onchange="OnChange"
-           @attributes="AdditionalAttributes"/>
+           @attributes="AdditionalAttributes" />
 </div>
 
 @code {
+    [Parameter] public bool AutoFocus { get; set; } = false;
+    private ElementReference _inputRef;
+
     protected override string? FormatValueAsString(decimal value)
         => value.ToString("#,##0.00", CultureInfo.CurrentCulture);    
 
@@ -62,5 +68,13 @@
         var bits = decimal.GetBits(value);
         var scale = (bits[3] >> 16) & 0x7F;
         return scale;
-    }    
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && AutoFocus && RendererInfo.IsInteractive)
+        {
+            try { await _inputRef.FocusAsync(); } catch { /* ignore focus errors */ }
+        }
+    }
 }
