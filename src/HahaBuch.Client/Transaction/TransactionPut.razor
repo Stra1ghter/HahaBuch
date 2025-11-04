@@ -31,7 +31,7 @@ else
         <div class="row mb-3">
             <div class="col-12 mb-3">
                 <label for="amount" class="form-label">@Loc["Amount"] </label>
-                <MoneyInput id="amount" @bind-Value="transaction.Amount" AutoFocus="@AutoFocusAmount" />
+                <MoneyInput id="amount" @bind-Value="transaction.Amount" AutoFocus="@AutoFocusAmount" @attributes="MoneyInputAttributes" />
                 <ValidationMessage For="() => transaction.Amount" />
             </div>
         </div>
@@ -86,6 +86,12 @@ else
     [Parameter] public bool AutoFocusAmount { get; set; } = false; // new parameter
 
     private bool IsExpense = true;
+
+    private Dictionary<string, object> MoneyInputAttributes { get; set; } =
+      new()
+      {
+            { "tabindex", "0" }
+      };
 
     protected override async Task OnInitializedAsync()
     {

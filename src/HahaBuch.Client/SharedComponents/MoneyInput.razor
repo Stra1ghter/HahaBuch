@@ -15,6 +15,7 @@
            name="@NameAttributeValue"
            class="@CssClass form-control"
            value="@CurrentValueAsString"
+           onmousepopup="(function(e){e.preventDefault();})(e)"
            onfocus="this.select()"  
            @onchange="OnChange"
            @attributes="AdditionalAttributes" />
