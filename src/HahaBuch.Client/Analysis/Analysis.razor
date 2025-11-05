@@ -22,7 +22,10 @@ else if (_totals.Count == 0)
 else
 {
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-12">
+            <PieChart Slices="_pieSlices" />
+        </div>
+        <div class="col-md-12">
             <table class="table table-sm">
                 <thead>
                     <tr>
@@ -42,9 +45,6 @@ else
                 }
                 </tbody>
             </table>
-        </div>
-        <div class="col-md-6">
-            <PieChart Slices="_pieSlices" />
         </div>
     </div>
 }
