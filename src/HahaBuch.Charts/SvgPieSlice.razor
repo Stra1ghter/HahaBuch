@@ -23,6 +23,9 @@
     public int Radius { get; set; } = 100; // default view box 200x200
 
     [Parameter]
+    public double Fraction{ get; set; }
+
+    [Parameter]
     public string BackgroundColor { get; set; } = "black";
 
     /// <summary>
@@ -48,9 +51,10 @@
         string sy = StartPoint.Y.ToString("0.########", CultureInfo.InvariantCulture);
         string ex = EndPoint.X.ToString("0.########", CultureInfo.InvariantCulture);
         string ey = EndPoint.Y.ToString("0.########", CultureInfo.InvariantCulture);
+        byte largeArc = (byte)(Fraction > 0.5 ? 1 : 0);
 
         sb.Append($"M {sx} {sy} "); // Move to center
-        sb.Append($"A {Radius} {Radius} 0 0 1 {ex} {ey} "); // Draw arc
+        sb.Append($"A {Radius} {Radius} 0 {largeArc} 1 {ex} {ey} "); // Draw arc
         sb.Append($"L 0 0 Z"); // Line to center and close path
         _pathData = sb.ToString();
 

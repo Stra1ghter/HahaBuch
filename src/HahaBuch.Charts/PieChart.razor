@@ -8,6 +8,7 @@
                 Radius="slice.Radius"
                 BackgroundColor=@slice.BackgroundColor
                 DataItem="slice.DataItem"
+                Fraction="slice.Fraction"
                 OnMouseOver="OnMouseOver"
                 OnMouseOut="OnMouseOut" />
         }
@@ -26,7 +27,7 @@ else
 @code {
 
     // mocked test values
-    decimal[] values = new decimal[] { 10, 20, 30, 40 };
+    decimal[] values = new decimal[] { 20, 20, 20, 61 };
     string[] colors = new string[] { "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0" };
     private int? selected = null;
 
@@ -60,6 +61,7 @@ else
                 StartPoint = lastEndPoint,
                 EndPoint = nextPoint,
                 Radius = radius,
+                Fraction = fractions[i],
                 BackgroundColor = colors[i],
             });
             lastEndPoint = nextPoint;
