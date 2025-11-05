@@ -237,6 +237,9 @@
   <data name="OptionalLabelSuffix" xml:space="preserve">
     <value>(optional)</value>
   </data>
+  <data name="Other" xml:space="preserve">
+    <value>Other</value>
+  </data>
   <data name="InvalidMoneyFormat" xml:space="preserve">
     <value>Input must be a money value.</value>
   </data>
