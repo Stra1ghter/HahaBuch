@@ -21,31 +21,37 @@ else if (_totals.Count == 0)
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Category</th>
-                <th>Expenses</th>
-                <th>Income</th>
-            </tr>
-        </thead>
-        <tbody>
-        @foreach (var t in _totals)
-        {
-            <tr>
-                <td>@t.Category</td>
-                <td>@t.ExpenseTotal</td>
-                <td>@t.IncomeTotal</td>
-            </tr>
-        }
-        </tbody>
-    </table>
+    <div class="row">
+        <div class="col-md-6">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Expenses</th>
+                        <th>Income</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var t in _totals.OrderByDescending(x => x.ExpenseTotal))
+                {
+                    <tr>
+                        <td>@t.Category</td>
+                        <td>@t.ExpenseTotal</td>
+                        <td>@t.IncomeTotal</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-6">
+            <PieChart Slices="_pieSlices" />
+        </div>
+    </div>
 }
-
-<PieChart />
 
 @code {
     private List<CategoryYearTotalDto> _totals = new();
+    private List<PieSliceData> _pieSlices = new();
     private bool _loading = true;
     private int _year = DateTime.Now.Year;
 
@@ -54,6 +60,24 @@ else
         if (!RendererInfo.IsInteractive)
             return; // skip during prerender
         _totals = await AnalysisService.GetCategoryYearTotals(_year);
+        BuildPieSlices();
         _loading = false;
+    }
+
+    private void BuildPieSlices()
+    {
+        _pieSlices.Clear();
+        decimal total = _totals.Where(t => t.ExpenseTotal > 0).Sum(t => t.ExpenseTotal);
+        if (total <= 0) return;
+        foreach (var t in _totals.Where(t => t.ExpenseTotal > 0))
+        {
+            _pieSlices.Add(new PieSliceData
+            {
+                Label = t.Category,
+                Color = t.CategoryColor,
+                Value = t.ExpenseTotal,
+                Fraction = (double)(t.ExpenseTotal / total)
+            });
+        }
     }
 }

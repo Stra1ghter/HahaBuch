@@ -1,4 +1,6 @@
-﻿<svg width="500" height="500" viewBox="0 0 @(radius * 2) @(radius * 2)">
+﻿@using HahaBuch.Charts
+
+<svg width="500" height="500" viewBox="0 0 @(radius * 2) @(radius * 2)">
     <g transform="translate (@radius, @radius)">
         @foreach (var slice in _slices)
         {
@@ -8,31 +10,24 @@
                 Radius="slice.Radius"
                 BackgroundColor=@slice.BackgroundColor
                 DataItem="slice.DataItem"
-                Fraction="slice.Fraction"
+                LargeArc="slice.LargeArc"
                 OnMouseOver="OnMouseOver"
                 OnMouseOut="OnMouseOut" />
         }
     </g>
 </svg>
 
-@if (selected.HasValue)
+@if (_selected != null)
 {
-    <p>Selected slice @selected</p>
-}
-else
-{
-    <p>No slice selected</p>
+    <p>@_selected.Label: @_selected.Value (@((_selected.Fraction * 100).ToString("0.##"))%)</p>
 }
 
 @code {
-
-    // mocked test values
-    decimal[] values = new decimal[] { 20, 20, 20, 61 };
-    string[] colors = new string[] { "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0" };
-    private int? selected = null;
+    [Parameter] public IEnumerable<PieSliceData>? Slices { get; set; }
 
     private const int radius = 100;
-    private readonly List<SvgPieSlice<int>> _slices = new();
+    private readonly List<SvgPieSlice<PieSliceData>> _slices = new();
+    private PieSliceData? _selected;
 
     protected override void OnParametersSet()
     {
@@ -42,41 +37,43 @@ else
     private void CalculateSlices()
     {
         _slices.Clear();
-        decimal total = values.Sum();
+        _selected = null;
+        if (Slices == null) return;
 
-        double[] fractions = values.Select(v => (double)(v / total)).ToArray();
-        double currentAngle = Math.PI / 2;
+        var data = Slices.Where(s => s.Fraction > 0).ToList();
+        if (!data.Any()) return;
+
+        double currentAngle = Math.PI / 2; // start at 12 o'clock
         Point lastEndPoint = new Point(0, -radius);
-
-        for (int i = 0; i < fractions.Length; i++)
+        foreach (var item in data)
         {
-            currentAngle -= fractions[i] * 2 * Math.PI;
+            currentAngle -= item.Fraction * 2 * Math.PI;
             Point nextPoint = new Point(
                 radius * Math.Cos(currentAngle),
-                -1 * radius * Math.Sin(currentAngle) // -1 because the y-axis is flipped in SVG
+                -1 * radius * Math.Sin(currentAngle)
             );
-            _slices.Add(new SvgPieSlice<int>
+            _slices.Add(new SvgPieSlice<PieSliceData>
             {
-                DataItem = i,
+                DataItem = item,
                 StartPoint = lastEndPoint,
                 EndPoint = nextPoint,
                 Radius = radius,
-                Fraction = fractions[i],
-                BackgroundColor = colors[i],
+                LargeArc = item.Fraction > 0.5,
+                BackgroundColor = item.Color,
             });
             lastEndPoint = nextPoint;
         }
     }
 
-    private void OnMouseOver(object? sender, int dataItem)
+    private void OnMouseOver(object? sender, PieSliceData slice)
     {
-        selected = dataItem;
+        _selected = slice;
         StateHasChanged();
     }
 
-    private void OnMouseOut(object? sender, int dataItem)
+    private void OnMouseOut(object? sender, PieSliceData slice)
     {
-        selected = null;
+        _selected = null;
         StateHasChanged();
     }
 }
