@@ -1,7 +1,7 @@
 ﻿@using HahaBuch.Charts
 
 <div class="pie-chart-wrapper">
-    <svg class="pie-chart" viewBox="0 0 @(radius * 2) @(radius * 2)">
+    <svg class="pie-chart" viewBox="-1 -1 @(radius * 2 + 2) @(radius * 2 + 2)">
         <g transform="translate (@radius, @radius)">
             @foreach (var slice in _slices)
             {
