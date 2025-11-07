@@ -23,7 +23,7 @@ else
 {
     <div class="row">
         <div class="col-md-12">
-            <PieChart Slices="_pieSlices" />
+            <PieChart Slices="_pieSlices" OnItemMouseOver="@SliceMouseOver" OnItemMouseOut="@SliceMouseOut" />
         </div>
         <div class="col-md-12">
             <table class="table table-sm">
@@ -49,11 +49,17 @@ else
     </div>
 }
 
+@if (_selected != null)
+{
+    <p>@_selected.Label: @_selected.Value (@((_selected.Fraction * 100).ToString("0.##"))%)</p>
+}
+
 @code {
     private List<CategoryYearTotalDto> _totals = new();
     private List<PieSliceData> _pieSlices = new();
     private bool _loading = true;
     private int _year = DateTime.Now.Year;
+    private PieSliceData? _selected = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -79,5 +85,18 @@ else
                 Fraction = (double)(t.ExpenseTotal / total)
             });
         }
+    } 
+
+    private void SliceMouseOver(object? sender, PieSliceData slice)
+    {
+        _selected = slice;
+        StateHasChanged();
     }
+
+    private void SliceMouseOut(object? sender, PieSliceData slice)
+    {
+        _selected = null;
+        StateHasChanged();
+    }
+
 }

@@ -12,24 +12,20 @@
                     BackgroundColor=@slice.BackgroundColor
                     DataItem="slice.DataItem"
                     LargeArc="slice.LargeArc"
-                    OnMouseOver="OnMouseOver"
-                    OnMouseOut="OnMouseOut" />
+                    OnMouseOver="OnItemMouseOver"
+                    OnMouseOut="OnItemMouseOut" />
             }
         </g>
     </svg>
 </div>
 
-@if (_selected != null)
-{
-    <p>@_selected.Label: @_selected.Value (@((_selected.Fraction * 100).ToString("0.##"))%)</p>
-}
-
 @code {
     [Parameter] public IEnumerable<PieSliceData>? Slices { get; set; }
+    [Parameter] public EventHandler<PieSliceData?> OnItemMouseOver { get; set; }
+    [Parameter] public EventHandler<PieSliceData?> OnItemMouseOut { get; set; }
 
     private const int radius = 100;
     private readonly List<SvgPieSlice<PieSliceData>> _slices = new();
-    private PieSliceData? _selected;
 
     protected override void OnParametersSet()
     {
@@ -39,7 +35,6 @@
     private void CalculateSlices()
     {
         _slices.Clear();
-        _selected = null;
         if (Slices == null) return;
 
         var data = Slices.Where(s => s.Fraction > 0).ToList();
@@ -67,15 +62,4 @@
         }
     }
 
-    private void OnMouseOver(object? sender, PieSliceData slice)
-    {
-        _selected = slice;
-        StateHasChanged();
-    }
-
-    private void OnMouseOut(object? sender, PieSliceData slice)
-    {
-        _selected = null;
-        StateHasChanged();
-    }
 }
