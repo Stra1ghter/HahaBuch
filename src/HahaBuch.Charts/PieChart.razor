@@ -1,21 +1,23 @@
 ﻿@using HahaBuch.Charts
 
-<svg width="500" height="500" viewBox="0 0 @(radius * 2) @(radius * 2)">
-    <g transform="translate (@radius, @radius)">
-        @foreach (var slice in _slices)
-        {
-            <SvgPieSlice 
-                StartPoint="slice.StartPoint"
-                EndPoint="slice.EndPoint"
-                Radius="slice.Radius"
-                BackgroundColor=@slice.BackgroundColor
-                DataItem="slice.DataItem"
-                LargeArc="slice.LargeArc"
-                OnMouseOver="OnMouseOver"
-                OnMouseOut="OnMouseOut" />
-        }
-    </g>
-</svg>
+<div class="pie-chart-wrapper">
+    <svg class="pie-chart" viewBox="0 0 @(radius * 2) @(radius * 2)">
+        <g transform="translate (@radius, @radius)">
+            @foreach (var slice in _slices)
+            {
+                <SvgPieSlice 
+                    StartPoint="slice.StartPoint"
+                    EndPoint="slice.EndPoint"
+                    Radius="slice.Radius"
+                    BackgroundColor=@slice.BackgroundColor
+                    DataItem="slice.DataItem"
+                    LargeArc="slice.LargeArc"
+                    OnMouseOver="OnMouseOver"
+                    OnMouseOut="OnMouseOut" />
+            }
+        </g>
+    </svg>
+</div>
 
 @if (_selected != null)
 {
