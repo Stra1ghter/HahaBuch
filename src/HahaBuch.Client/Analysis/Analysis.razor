@@ -5,6 +5,7 @@
 @using HahaBuch.Charts;
 @using Microsoft.Extensions.Localization
 @using HahaBuch.SharedContracts
+@using System.Globalization
 @inject IStringLocalizer<SharedResources> Loc
 @inject IAnalysisService AnalysisService
 
@@ -41,7 +42,7 @@
                     <thead>
                         <tr>
                             <th>@Loc["Category"]</th>
-                            <th>@(ExpenseSelected ? Loc["Expense"] : Loc["Income"])</th>
+                            <th>@(ExpenseSelected? FormatHeaderWithLocalizedCurrencySymbol(Loc["Expense"]) : FormatHeaderWithLocalizedCurrencySymbol(Loc["Income"]))</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -149,5 +150,9 @@
         _selected = null;
         StateHasChanged();
     }
-
+    
+    private string FormatHeaderWithLocalizedCurrencySymbol(string headerText)
+        => CultureInfo.CurrentUICulture.NumberFormat.CurrencySymbol != "¤" && !string.IsNullOrEmpty(CultureInfo.CurrentUICulture.NumberFormat.CurrencySymbol)
+            ? $"{headerText} ({CultureInfo.CurrentUICulture.NumberFormat.CurrencySymbol})"
+            : headerText;
 }
