@@ -9,50 +9,52 @@
 
 @attribute [Authorize]
 
-<h3>@Loc["Analysis"]</h3>
+<div class="container mt-4">
+    <h3>@Loc["Analysis"]</h3>
 
-@if (_loading)
-{
-    <p>Loading analysis...</p>
-}
-else if (_totals.Count == 0)
-{
-    <p>No data for @_year.</p>
-}
-else
-{
-    <div class="row">
-        <div class="col-md-12">
-            <PieChart Slices="_pieSlices" OnItemMouseOver="@SliceMouseOver" OnItemMouseOut="@SliceMouseOut" />
+    @if (_loading)
+    {
+        <p>Loading analysis...</p>
+    }
+    else if (_totals.Count == 0)
+    {
+        <p>No data for @_year.</p>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-12">
+                <PieChart Slices="_pieSlices" OnItemMouseOver="SliceMouseOver" OnItemMouseOut="SliceMouseOut" />
+            </div>
+            <div class="col-md-12">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Expenses</th>
+                            <th>Income</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var t in _totals.OrderByDescending(x => x.ExpenseTotal))
+                    {
+                        <tr>
+                            <td>@t.Category</td>
+                            <td>@t.ExpenseTotal</td>
+                            <td>@t.IncomeTotal</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <div class="col-md-12">
-            <table class="table table-sm">
-                <thead>
-                    <tr>
-                        <th>Category</th>
-                        <th>Expenses</th>
-                        <th>Income</th>
-                    </tr>
-                </thead>
-                <tbody>
-                @foreach (var t in _totals.OrderByDescending(x => x.ExpenseTotal))
-                {
-                    <tr>
-                        <td>@t.Category</td>
-                        <td>@t.ExpenseTotal</td>
-                        <td>@t.IncomeTotal</td>
-                    </tr>
-                }
-                </tbody>
-            </table>
-        </div>
-    </div>
-}
+    }
 
-@if (_selected != null)
-{
-    <p>@_selected.Label: @_selected.Value (@((_selected.Fraction * 100).ToString("0.##"))%)</p>
-}
+    @if (_selected != null)
+    {
+        <p>@_selected.Label: @_selected.Value (@((_selected.Fraction * 100).ToString("0.##"))%)</p>
+    }
+</div>
 
 @code {
     private List<CategoryYearTotalDto> _totals = new();
