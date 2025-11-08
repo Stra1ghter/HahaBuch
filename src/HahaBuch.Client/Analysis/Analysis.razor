@@ -23,57 +23,59 @@
     }
     else
     {
-        <BinaryRadioButton @bind-Value="ExpenseSelected"
-                           TrueLabel="@Loc["Expense"]"
-                           FalseLabel="@Loc["Income"]"
-                           ButtonVariant="outline-secondary"
-                            />
+        <div class="row mt-3 mb-3 text-center">
+            <BinaryRadioButton @bind-Value="ExpenseSelected"
+                               TrueLabel="@Loc["Expense"]"
+                               FalseLabel="@Loc["Income"]"
+                               ButtonVariant="outline-secondary"
+                                />
+        </div>
 
-        <div class="row">
-            <div class="col-md-12">
-                <PieChart Slices="@(ExpenseSelected ? _pieSlicesExpenses : _pieSlicesIncome)" OnItemMouseOver="SliceMouseOver" OnItemMouseOut="SliceMouseOut" />
+        <div class="row justify-content-evenly">
+            <div class="col-md-6 col-s-12">
+                <PieChart Slices="@(ExpenseSelected? _pieSlicesExpenses : _pieSlicesIncome)" OnItemMouseOver="SliceMouseOver" OnItemMouseOut="SliceMouseOut" />
             </div>
 
-                <div class="col-md-12">
-                    <table class="table table-sm">
-                        <thead>
-                            <tr>
-                                <th>@Loc["Category"]</th>
-                                <th>@(ExpenseSelected ? Loc["Expense"] : Loc["Income"])</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        @if(ExpenseSelected)
+            <div class="col-md-6 col-s-12">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>@Loc["Category"]</th>
+                            <th>@(ExpenseSelected ? Loc["Expense"] : Loc["Income"])</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @if(ExpenseSelected)
+                    {
+                        @foreach (var t in _totals.Where(t => t.ExpenseTotal > 0).OrderByDescending(x => x.ExpenseTotal))
                         {
-                            @foreach (var t in _totals.Where(t => t.ExpenseTotal > 0).OrderByDescending(x => x.ExpenseTotal))
-                            {
-                                <tr>
-                                    <td>@t.Category</td>
-                                    <td>@t.ExpenseTotal</td>
-                                </tr>
-                            }
                             <tr>
-                                <td>@Loc["Sum"]</td>
-                                <td>@_totals.Sum(t => t.ExpenseTotal)</td>
+                                <td>@t.Category</td>
+                                <td>@t.ExpenseTotal</td>
                             </tr>
                         }
-                        else
+                        <tr>
+                            <td>@Loc["Sum"]</td>
+                            <td>@_totals.Sum(t => t.ExpenseTotal)</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var t in _totals.Where(t => t.IncomeTotal > 0).OrderByDescending(x => x.IncomeTotal))
                         {
-                            @foreach (var t in _totals.Where(t => t.IncomeTotal > 0).OrderByDescending(x => x.IncomeTotal))
-                            {
-                                <tr>
-                                    <td>@t.Category</td>
-                                    <td>@t.IncomeTotal</td>
-                                </tr>
-                            }
                             <tr>
-                                <td>@Loc["Sum"]</td>
-                                <td>@_totals.Sum(t => t.IncomeTotal)</td>
+                                <td>@t.Category</td>
+                                <td>@t.IncomeTotal</td>
                             </tr>
                         }
-                    </tbody>
-                    </table>
-                </div>
+                        <tr>
+                            <td>@Loc["Sum"]</td>
+                            <td>@_totals.Sum(t => t.IncomeTotal)</td>
+                        </tr>
+                    }
+                </tbody>
+                </table>
+            </div>
         </div>
     }
 
