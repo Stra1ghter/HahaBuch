@@ -1,5 +1,6 @@
 ﻿@page "/analysis"
 @rendermode @(new InteractiveAutoRenderMode(prerender: false))
+@using HahaBuch.Client.SharedComponents
 @using Microsoft.AspNetCore.Authorization
 @using HahaBuch.Charts;
 @using Microsoft.Extensions.Localization
@@ -22,31 +23,49 @@
     }
     else
     {
+        <BinaryRadioButton @bind-Value="ExpenseSelected"
+                           TrueLabel="@Loc["Expense"]"
+                           FalseLabel="@Loc["Income"]"
+                           ButtonVariant="outline-secondary"
+                            />
+
         <div class="row">
             <div class="col-md-12">
-                <PieChart Slices="_pieSlices" OnItemMouseOver="SliceMouseOver" OnItemMouseOut="SliceMouseOut" />
+                <PieChart Slices="@(ExpenseSelected ? _pieSlicesExpenses : _pieSlicesIncome)" OnItemMouseOver="SliceMouseOver" OnItemMouseOut="SliceMouseOut" />
             </div>
-            <div class="col-md-12">
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th>Category</th>
-                            <th>Expenses</th>
-                            <th>Income</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    @foreach (var t in _totals.OrderByDescending(x => x.ExpenseTotal))
-                    {
-                        <tr>
-                            <td>@t.Category</td>
-                            <td>@t.ExpenseTotal</td>
-                            <td>@t.IncomeTotal</td>
-                        </tr>
-                    }
+
+                <div class="col-md-12">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>@Loc["Category"]</th>
+                                <th>@(ExpenseSelected ? Loc["Expense"] : Loc["Income"])</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @if(ExpenseSelected)
+                        {
+                            @foreach (var t in _totals.Where(t => t.ExpenseTotal > 0).OrderByDescending(x => x.ExpenseTotal))
+                            {
+                                <tr>
+                                    <td>@t.Category</td>
+                                    <td>@t.ExpenseTotal</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            @foreach (var t in _totals.Where(t => t.IncomeTotal > 0).OrderByDescending(x => x.IncomeTotal))
+                            {
+                                <tr>
+                                    <td>@t.Category</td>
+                                    <td>@t.IncomeTotal</td>
+                                </tr>
+                            }
+                        }
                     </tbody>
-                </table>
-            </div>
+                    </table>
+                </div>
         </div>
     }
 
@@ -58,28 +77,31 @@
 
 @code {
     private List<CategoryYearTotalDto> _totals = new();
-    private List<PieSliceData> _pieSlices = new();
+    private List<PieSliceData> _pieSlicesExpenses = new();
+    private List<PieSliceData> _pieSlicesIncome = new();
     private bool _loading = true;
     private int _year = DateTime.Now.Year;
     private PieSliceData? _selected = null;
+    private bool ExpenseSelected = true;
 
     protected override async Task OnInitializedAsync()
     {
         if (!RendererInfo.IsInteractive)
             return; // skip during prerender
         _totals = await AnalysisService.GetCategoryYearTotals(_year);
-        BuildPieSlices();
+        BuildExpensePieSlices();
+        BuildIncomePieSlices();
         _loading = false;
     }
 
-    private void BuildPieSlices()
+    private void BuildExpensePieSlices()
     {
-        _pieSlices.Clear();
+        _pieSlicesExpenses.Clear();
         decimal total = _totals.Where(t => t.ExpenseTotal > 0).Sum(t => t.ExpenseTotal);
         if (total <= 0) return;
         foreach (var t in _totals.Where(t => t.ExpenseTotal > 0))
         {
-            _pieSlices.Add(new PieSliceData
+            _pieSlicesExpenses.Add(new PieSliceData
             {
                 Label = t.Category,
                 Color = t.CategoryColor,
@@ -87,7 +109,24 @@
                 Fraction = (double)(t.ExpenseTotal / total)
             });
         }
-    } 
+    }
+
+    private void BuildIncomePieSlices()
+    {
+        _pieSlicesIncome.Clear();
+        decimal total = _totals.Where(t => t.IncomeTotal > 0).Sum(t => t.IncomeTotal);
+        if (total <= 0) return;
+        foreach (var t in _totals.Where(t => t.IncomeTotal > 0))
+        {
+            _pieSlicesIncome.Add(new PieSliceData
+            {
+                Label = t.Category,
+                Color = t.CategoryColor,
+                Value = t.IncomeTotal,
+                Fraction = (double)(t.IncomeTotal / total)
+            });
+        }
+    }
 
     private void SliceMouseOver(object? sender, PieSliceData slice)
     {
