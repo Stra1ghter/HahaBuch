@@ -3,17 +3,24 @@
 <div class="pie-chart-wrapper">
     <svg class="pie-chart" viewBox="-1 -1 @(radius * 2 + 2) @(radius * 2 + 2)">
         <g transform="translate (@radius, @radius)">
-            @foreach (var slice in _slices)
+            @if (_slices.Count == 1)
             {
-                <SvgPieSlice 
-                    StartPoint="slice.StartPoint"
-                    EndPoint="slice.EndPoint"
-                    Radius="slice.Radius"
-                    BackgroundColor=@slice.BackgroundColor
-                    DataItem="slice.DataItem"
-                    LargeArc="slice.LargeArc"
-                    OnMouseOver="OnItemMouseOver"
-                    OnMouseOut="OnItemMouseOut" />
+                <circle cx="0" cy="0" r="@radius" fill="#@_slices.First().BackgroundColor" stroke="#fff" />
+            }
+            else
+            {
+                @foreach (var slice in _slices)
+                {
+                    <SvgPieSlice 
+                        StartPoint="slice.StartPoint"
+                        EndPoint="slice.EndPoint"
+                        Radius="slice.Radius"
+                        BackgroundColor=@slice.BackgroundColor
+                        DataItem="slice.DataItem"
+                        LargeArc="slice.LargeArc"
+                        OnMouseOver="OnItemMouseOver"
+                        OnMouseOut="OnItemMouseOut" />
+                }
             }
         </g>
     </svg>
