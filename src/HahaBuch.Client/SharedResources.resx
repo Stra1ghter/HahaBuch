@@ -165,6 +165,9 @@
   <data name="Save" xml:space="preserve">
     <value>Save</value>
   </data>
+  <data name="Sum" xml:space="preserve">
+    <value>Sum</value>
+  </data>
   <data name="SaveLc" xml:space="preserve">
     <value>save</value>
   </data>

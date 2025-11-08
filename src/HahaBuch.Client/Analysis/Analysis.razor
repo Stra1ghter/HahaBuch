@@ -52,6 +52,10 @@
                                     <td>@t.ExpenseTotal</td>
                                 </tr>
                             }
+                            <tr>
+                                <td>@Loc["Sum"]</td>
+                                <td>@_totals.Sum(t => t.ExpenseTotal)</td>
+                            </tr>
                         }
                         else
                         {
@@ -62,6 +66,10 @@
                                     <td>@t.IncomeTotal</td>
                                 </tr>
                             }
+                            <tr>
+                                <td>@Loc["Sum"]</td>
+                                <td>@_totals.Sum(t => t.IncomeTotal)</td>
+                            </tr>
                         }
                     </tbody>
                     </table>
