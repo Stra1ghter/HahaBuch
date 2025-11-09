@@ -46,6 +46,7 @@
                         <tr>
                             <th>@Loc["Category"]</th>
                             <th>@(ExpenseSelected? FormatHeaderWithLocalizedCurrencySymbol(Loc["Expense"]) : FormatHeaderWithLocalizedCurrencySymbol(Loc["Income"]))</th>
+                            <th>%</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -59,11 +60,13 @@
                                 @onmouseout="TableRowMouseOut">
                                 <td>@t.Category</td>
                                 <td>@t.ExpenseTotal</td>
+                                <td>@FormatPercentage(t.ExpenseTotal, _expenseSum)</td>
                             </tr>
                         }
                         <tr>
                             <td>@Loc["Sum"]</td>
                             <td>@_totals.Sum(t => t.ExpenseTotal)</td>
+                            <td>100%</td>
                         </tr>
                     }
                     else
@@ -76,11 +79,13 @@
                                 @onmouseout="TableRowMouseOut">
                                 <td>@t.Category</td>
                                 <td>@t.IncomeTotal</td>
+                                <td>@FormatPercentage(t.IncomeTotal, _incomeSum)</td>
                             </tr>
                         }
                         <tr>
                             <td>@Loc["Sum"]</td>
                             <td>@_totals.Sum(t => t.IncomeTotal)</td>
+                            <td>100%</td>
                         </tr>
                     }
                 </tbody>
@@ -104,6 +109,8 @@
     private PieSliceData? _selected = null;
     private bool ExpenseSelected = true;
     private PieSliceData? _highlightedSlice = null;
+    private decimal _expenseSum = 0M;
+    private decimal _incomeSum = 0M;
 
     protected override async Task OnInitializedAsync()
     {
@@ -119,6 +126,7 @@
     {
         _pieSlicesExpenses.Clear();
         decimal total = _totals.Where(t => t.ExpenseTotal > 0).Sum(t => t.ExpenseTotal);
+        _expenseSum = total;
         if (total <= 0) return;
         foreach (var t in _totals.Where(t => t.ExpenseTotal > 0))
         {
@@ -136,6 +144,7 @@
     {
         _pieSlicesIncome.Clear();
         decimal total = _totals.Where(t => t.IncomeTotal > 0).Sum(t => t.IncomeTotal);
+        _incomeSum = total;
         if (total <= 0) return;
         foreach (var t in _totals.Where(t => t.IncomeTotal > 0))
         {
@@ -178,4 +187,7 @@
         => CultureInfo.CurrentUICulture.NumberFormat.CurrencySymbol != "¤" && !string.IsNullOrEmpty(CultureInfo.CurrentUICulture.NumberFormat.CurrencySymbol)
             ? $"{headerText} ({CultureInfo.CurrentUICulture.NumberFormat.CurrencySymbol})"
             : headerText;
+
+    private string FormatPercentage(decimal value, decimal total)
+        => total > 0 ? ((value / total) * 100M).ToString("0.##", CultureInfo.CurrentUICulture) + "%" : "-";
 }
