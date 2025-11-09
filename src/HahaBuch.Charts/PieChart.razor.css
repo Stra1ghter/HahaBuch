@@ -6,3 +6,13 @@
     max-width: 500px;
     max-height: 500px;
 }
+
+::deep .pie-slice {
+    transition: filter .2s, stroke-width .2s;
+}
+
+::deep .pie-slice:hover,
+::deep .pie-slice.highlighted {
+    filter: brightness(1.3);
+    stroke-width: 2;
+}

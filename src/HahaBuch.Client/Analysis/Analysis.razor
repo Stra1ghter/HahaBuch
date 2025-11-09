@@ -34,11 +34,14 @@
 
         <div class="row justify-content-evenly">
             <div class="col-md-6 col-s-12">
-                <PieChart Slices="@(ExpenseSelected? _pieSlicesExpenses : _pieSlicesIncome)" OnItemMouseOver="SliceMouseOver" OnItemMouseOut="SliceMouseOut" />
+                <PieChart Slices="@(ExpenseSelected? _pieSlicesExpenses : _pieSlicesIncome)" 
+                          OnItemMouseOver="SliceMouseOver" 
+                          OnItemMouseOut="SliceMouseOut"
+                          HighlightedSlice="_highlightedSlice" />
             </div>
 
             <div class="col-md-6 col-s-12">
-                <table class="table table-sm">
+                <table class="table table-sm analysis-totals">
                     <thead>
                         <tr>
                             <th>@Loc["Category"]</th>
@@ -50,7 +53,10 @@
                     {
                         @foreach (var t in _totals.Where(t => t.ExpenseTotal > 0).OrderByDescending(x => x.ExpenseTotal))
                         {
-                            <tr>
+                            var slice = _pieSlicesExpenses.FirstOrDefault(s => s.Label == t.Category);
+                            <tr class="@(slice == _highlightedSlice ? "table-active" : null)"
+                                @onmouseover="() => TableRowMouseOver(slice)"
+                                @onmouseout="TableRowMouseOut">
                                 <td>@t.Category</td>
                                 <td>@t.ExpenseTotal</td>
                             </tr>
@@ -64,7 +70,10 @@
                     {
                         @foreach (var t in _totals.Where(t => t.IncomeTotal > 0).OrderByDescending(x => x.IncomeTotal))
                         {
-                            <tr>
+                            var slice = _pieSlicesIncome.FirstOrDefault(s => s.Label == t.Category);
+                            <tr class="@(slice == _highlightedSlice ? "table-active" : null)"
+                                @onmouseover="() => TableRowMouseOver(slice)"
+                                @onmouseout="TableRowMouseOut">
                                 <td>@t.Category</td>
                                 <td>@t.IncomeTotal</td>
                             </tr>
@@ -94,6 +103,7 @@
     private int _year = DateTime.Now.Year;
     private PieSliceData? _selected = null;
     private bool ExpenseSelected = true;
+    private PieSliceData? _highlightedSlice = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -142,13 +152,26 @@
     private void SliceMouseOver(object? sender, PieSliceData slice)
     {
         _selected = slice;
+        _highlightedSlice = slice;
         StateHasChanged();
     }
 
     private void SliceMouseOut(object? sender, PieSliceData slice)
     {
         _selected = null;
+        _highlightedSlice = null;
         StateHasChanged();
+    }
+
+    private void TableRowMouseOver(PieSliceData? slice)
+    {
+        if (slice == null) return;
+        _highlightedSlice = slice;
+    }
+
+    private void TableRowMouseOut()
+    {
+        _highlightedSlice = null;
     }
     
     private string FormatHeaderWithLocalizedCurrencySymbol(string headerText)

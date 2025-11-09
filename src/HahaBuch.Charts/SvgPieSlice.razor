@@ -4,7 +4,7 @@
 @attribute [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
 @typeparam T
 
-<path class="pie-slice"
+<path class="pie-slice @(Highlighted ? "highlighted" : null)"
     d="@_pathData"
     fill="#@BackgroundColor" 
     stroke="#fff"
@@ -39,6 +39,12 @@
 
     [Parameter]
     public EventHandler<T>? OnMouseOut { get; set; }
+
+    /// <summary>
+    /// Whether this slice should appear highlighted (e.g. when corresponding table row is hovered).
+    /// </summary>
+    [Parameter]
+    public bool Highlighted { get; set; }
 
     private string _pathData = string.Empty;
 

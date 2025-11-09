@@ -5,7 +5,15 @@
         <g transform="translate (@radius, @radius)">
             @if (_slices.Count == 1)
             {
-                <circle cx="0" cy="0" r="@radius" fill="#@_slices.First().BackgroundColor" stroke="#fff" />
+                <circle 
+                    cx="0"
+                    cy="0"
+                    r="@radius"
+                    fill="#@_slices.First().BackgroundColor"
+                    stroke="#fff"
+                    @onmouseover="@(() => OnItemMouseOver(this, Slices!.First()))"
+                    @onmouseout="@(() => OnItemMouseOut(this, Slices!.First()))"
+                    class="pie-slice @(IsSliceHighlighted(_slices.First().DataItem) ? "highlighted" : null)" />
             }
             else
             {
@@ -19,7 +27,8 @@
                         DataItem="slice.DataItem"
                         LargeArc="slice.LargeArc"
                         OnMouseOver="OnItemMouseOver"
-                        OnMouseOut="OnItemMouseOut" />
+                        OnMouseOut="OnItemMouseOut"
+                        Highlighted="IsSliceHighlighted(slice.DataItem)" />
                 }
             }
         </g>
@@ -30,6 +39,10 @@
     [Parameter] public IEnumerable<PieSliceData>? Slices { get; set; }
     [Parameter] public EventHandler<PieSliceData?> OnItemMouseOver { get; set; }
     [Parameter] public EventHandler<PieSliceData?> OnItemMouseOut { get; set; }
+    /// <summary>
+    /// The slice that should be visually highlighted (e.g. external hover from table).
+    /// </summary>
+    [Parameter] public PieSliceData? HighlightedSlice { get; set; }
 
     private const int radius = 100;
     private readonly List<SvgPieSlice<PieSliceData>> _slices = new();
@@ -68,5 +81,7 @@
             lastEndPoint = nextPoint;
         }
     }
+
+    private bool IsSliceHighlighted(PieSliceData? data) => data != null && HighlightedSlice == data;
 
 }
