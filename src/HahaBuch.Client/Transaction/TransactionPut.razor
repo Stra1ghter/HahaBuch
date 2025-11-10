@@ -21,11 +21,11 @@ else
         <DataAnnotationsValidator/>
 
         <div class="row mb-3">
-            <BinaryRadioButton @bind-Value="IsExpense"
-                               TrueLabel="@Loc["Expense"]"
-                               FalseLabel="@Loc["Income"]"
-                               ButtonVariant="outline-secondary"
-                                />
+            <RadioButtonGroup TOption="bool"
+                               @bind-Value="IsExpense"
+                               Options="@([true, false])"
+                               LabelSelector="@((bool option) => option ? Loc["Expense"] : Loc["Income"])"
+                               ButtonVariant="outline-secondary" />
         </div>
 
         <div class="row mb-3">
@@ -63,8 +63,7 @@ else
         <button type="submit" class="btn btn-primary">
             @if (transaction.Id == Guid.Empty)
             {
-                @(IsExpense ? $"{Loc["Expense"]} {Loc["AddLc"]}" : $"{Loc["Income"]} {Loc["AddLc"]}")
-                ;
+                @(IsExpense ? $"{Loc["Expense"]} {Loc["AddLc"]}" : $"{Loc["Income"]} {Loc["AddLc"]}");
             }
             else
             {
@@ -83,9 +82,10 @@ else
 
     [Parameter] public IEnumerable<CategoryDto> Categories { get; set; } = [];
 
-    [Parameter] public bool AutoFocusAmount { get; set; } = false; // new parameter
+    [Parameter] public bool AutoFocusAmount { get; set; } = false;
 
     private bool IsExpense = true;
+    private readonly bool[] _boolOptions = new[] { true, false };
 
     private Dictionary<string, object> MoneyInputAttributes { get; set; } =
       new()

@@ -1,0 +1,71 @@
+﻿@typeparam TOption
+
+<div class="btn-group" role="group">
+    @if (OptionsList.Count >= 2)
+    {
+        @for (int i = 0; i < OptionsList.Count; i++)
+        {
+            var option = OptionsList[i];
+            var id = $"{Name}_option{i}";
+            <input type="radio"
+                   class="btn-check"
+                   name="@Name"
+                   id="@id"
+                   value="@i"
+                   disabled="@Disabled"
+                   checked="@IsSelected(option)"
+                   @onchange="() => HandleValueChanged(option)" />
+            <label class="btn @GetButtonClass(option)" for="@id">
+                @GetOptionLabel(option)
+            </label>
+        }
+    }
+    else
+    {
+        <span class="text-danger">Radio group requires at least two options.</span>
+    }
+</div>
+
+@code {
+    [Parameter] public string Name { get; set; } = Guid.NewGuid().ToString();
+    [Parameter] public IEnumerable<TOption> Options { get; set; } = Array.Empty<TOption>();
+    [Parameter] public TOption Value { get; set; } = default!;
+    [Parameter] public EventCallback<TOption> ValueChanged { get; set; }
+    [Parameter] public Func<TOption, string>? LabelSelector { get; set; }
+    [Parameter] public string ButtonVariant { get; set; } = "outline-primary";
+    [Parameter] public bool Disabled { get; set; } = false;
+
+    private readonly List<TOption> OptionsList = new();
+
+    protected override void OnParametersSet()
+    {
+        OptionsList.Clear();
+        if (Options != null)
+            OptionsList.AddRange(Options);
+    }
+
+    private string GetButtonClass(TOption option)
+    {
+        var baseClass = $"btn-{ButtonVariant}";
+        if (Disabled)
+            baseClass += " disabled";
+        if (IsSelected(option))
+            baseClass += " active"; // bootstrap pressed style
+        return baseClass;
+    }
+
+    private bool IsSelected(TOption option) => EqualityComparer<TOption>.Default.Equals(Value, option);
+
+    private string GetOptionLabel(TOption option)
+        => LabelSelector?.Invoke(option) ?? option?.ToString() ?? string.Empty;
+
+    private async Task HandleValueChanged(TOption newValue)
+    {
+        if (Disabled) return;
+        if (!IsSelected(newValue))
+        {
+            Value = newValue;
+            await ValueChanged.InvokeAsync(newValue);
+        }
+    }
+}
