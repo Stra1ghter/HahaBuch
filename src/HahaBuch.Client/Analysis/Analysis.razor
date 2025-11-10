@@ -93,11 +93,6 @@
             </div>
         </div>
     }
-
-    @if (_selected != null)
-    {
-        <p>@_selected.Label: @_selected.Value (@((_selected.Fraction * 100).ToString("0.##"))%)</p>
-    }
 </div>
 
 @code {
