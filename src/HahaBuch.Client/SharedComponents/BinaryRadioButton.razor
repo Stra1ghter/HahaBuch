@@ -1,9 +1,4 @@
-﻿@if (!string.IsNullOrEmpty(Label))
-{
-    <label class="form-label">@Label</label>
-}
-
-<div class="btn-group" role="group" aria-label="@Label">
+﻿<div class="btn-group" role="group">
     <input type="radio" 
            class="btn-check" 
            name="@Name" 
@@ -27,7 +22,6 @@
 </div>
 
 @code {
-    [Parameter] public string? Label { get; set; }
     [Parameter] public string Name { get; set; } = Guid.NewGuid().ToString();
     [Parameter] public string TrueLabel { get; set; } = "Yes";
     [Parameter] public string FalseLabel { get; set; } = "No";
