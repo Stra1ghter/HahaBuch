@@ -18,10 +18,6 @@
     {
         <p>Loading analysis...</p>
     }
-    else if (_totals.Count == 0)
-    {
-        <p>No data for @SelectedYear.</p>
-    }
     else
     {
         <div class="row mt-3 mb-3 text-center">
@@ -42,64 +38,71 @@
         </div>
 
         <div class="row justify-content-evenly">
-            <div class="col-md-6 col-s-12">
-                <PieChart Slices="@(ExpenseSelected? _pieSlicesExpenses : _pieSlicesIncome)" 
-                          OnItemMouseOver="SliceMouseOver" 
-                          OnItemMouseOut="SliceMouseOut"
-                          HighlightedSlice="_highlightedSlice" />
-            </div>
+            
+            @if (_totals.Count == 0)
+            {
+                <p>No data for @SelectedYear.</p>
+            }
+            {
+                <div class="col-md-6 col-s-12">
+                    <PieChart Slices="@(ExpenseSelected? _pieSlicesExpenses : _pieSlicesIncome)" 
+                              OnItemMouseOver="SliceMouseOver" 
+                              OnItemMouseOut="SliceMouseOut"
+                              HighlightedSlice="_highlightedSlice" />
+                </div>
 
-            <div class="col-md-6 col-s-12">
-                <table class="table table-sm analysis-totals">
-                    <thead>
-                        <tr>
-                            <th>@Loc["Category"]</th>
-                            <th>@(ExpenseSelected? FormatHeaderWithLocalizedCurrencySymbol(Loc["Expense"]) : FormatHeaderWithLocalizedCurrencySymbol(Loc["Income"]))</th>
-                            <th>%</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    @if(ExpenseSelected)
-                    {
-                        @foreach (var t in _totals.Where(t => t.ExpenseTotal > 0).OrderByDescending(x => x.ExpenseTotal))
+                <div class="col-md-6 col-s-12">
+                    <table class="table table-sm analysis-totals">
+                        <thead>
+                            <tr>
+                                <th>@Loc["Category"]</th>
+                                <th>@(ExpenseSelected? FormatHeaderWithLocalizedCurrencySymbol(Loc["Expense"]) : FormatHeaderWithLocalizedCurrencySymbol(Loc["Income"]))</th>
+                                <th>%</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @if(ExpenseSelected)
                         {
-                            var slice = _pieSlicesExpenses.FirstOrDefault(s => s.Label == t.Category);
-                            <tr class="@(slice == _highlightedSlice ? "table-active" : null)"
-                                @onmouseover="() => TableRowMouseOver(slice)"
-                                @onmouseout="TableRowMouseOut">
-                                <td>@t.Category</td>
-                                <td>@t.ExpenseTotal</td>
-                                <td>@FormatPercentage(t.ExpenseTotal, _expenseSum)</td>
+                            @foreach (var t in _totals.Where(t => t.ExpenseTotal > 0).OrderByDescending(x => x.ExpenseTotal))
+                            {
+                                var slice = _pieSlicesExpenses.FirstOrDefault(s => s.Label == t.Category);
+                                <tr class="@(slice == _highlightedSlice ? "table-active" : null)"
+                                    @onmouseover="() => TableRowMouseOver(slice)"
+                                    @onmouseout="TableRowMouseOut">
+                                    <td>@t.Category</td>
+                                    <td>@t.ExpenseTotal</td>
+                                    <td>@FormatPercentage(t.ExpenseTotal, _expenseSum)</td>
+                                </tr>
+                            }
+                            <tr>
+                                <td>@Loc["Sum"]</td>
+                                <td>@_totals.Sum(t => t.ExpenseTotal)</td>
+                                <td>100%</td>
                             </tr>
                         }
-                        <tr>
-                            <td>@Loc["Sum"]</td>
-                            <td>@_totals.Sum(t => t.ExpenseTotal)</td>
-                            <td>100%</td>
-                        </tr>
-                    }
-                    else
-                    {
-                        @foreach (var t in _totals.Where(t => t.IncomeTotal > 0).OrderByDescending(x => x.IncomeTotal))
+                        else
                         {
-                            var slice = _pieSlicesIncome.FirstOrDefault(s => s.Label == t.Category);
-                            <tr class="@(slice == _highlightedSlice ? "table-active" : null)"
-                                @onmouseover="() => TableRowMouseOver(slice)"
-                                @onmouseout="TableRowMouseOut">
-                                <td>@t.Category</td>
-                                <td>@t.IncomeTotal</td>
-                                <td>@FormatPercentage(t.IncomeTotal, _incomeSum)</td>
+                            @foreach (var t in _totals.Where(t => t.IncomeTotal > 0).OrderByDescending(x => x.IncomeTotal))
+                            {
+                                var slice = _pieSlicesIncome.FirstOrDefault(s => s.Label == t.Category);
+                                <tr class="@(slice == _highlightedSlice ? "table-active" : null)"
+                                    @onmouseover="() => TableRowMouseOver(slice)"
+                                    @onmouseout="TableRowMouseOut">
+                                    <td>@t.Category</td>
+                                    <td>@t.IncomeTotal</td>
+                                    <td>@FormatPercentage(t.IncomeTotal, _incomeSum)</td>
+                                </tr>
+                            }
+                            <tr>
+                                <td>@Loc["Sum"]</td>
+                                <td>@_totals.Sum(t => t.IncomeTotal)</td>
+                                <td>100%</td>
                             </tr>
                         }
-                        <tr>
-                            <td>@Loc["Sum"]</td>
-                            <td>@_totals.Sum(t => t.IncomeTotal)</td>
-                            <td>100%</td>
-                        </tr>
-                    }
-                </tbody>
-                </table>
-            </div>
+                    </tbody>
+                    </table>
+                </div>
+            }
         </div>
     }
 </div>
