@@ -20,10 +20,19 @@
     }
     else if (_totals.Count == 0)
     {
-        <p>No data for @_year.</p>
+        <p>No data for @SelectedYear.</p>
     }
     else
     {
+        <div class="row mt-3 mb-3 text-center">
+            <RadioButtonGroup TOption="int"
+                               Options="@([SelectedYear - 1, SelectedYear, SelectedYear + 1])"
+                               Value="SelectedYear"
+                               ValueChanged="SelectedYearChanged"
+                               LabelSelector="@((int year) => year.ToString())"
+                               ButtonVariant="outline-secondary" />
+        </div>
+
         <div class="row mt-3 mb-3 text-center">
             <RadioButtonGroup TOption="bool"
                                @bind-Value="ExpenseSelected"
@@ -100,18 +109,28 @@
     private List<PieSliceData> _pieSlicesExpenses = new();
     private List<PieSliceData> _pieSlicesIncome = new();
     private bool _loading = true;
-    private int _year = DateTime.Now.Year;
     private PieSliceData? _selected = null;
     private bool ExpenseSelected = true;
     private PieSliceData? _highlightedSlice = null;
     private decimal _expenseSum = 0M;
     private decimal _incomeSum = 0M;
+    private int SelectedYear = DateTime.Now.Year;
 
     protected override async Task OnInitializedAsync()
     {
         if (!RendererInfo.IsInteractive)
             return; // skip during prerender
-        _totals = await AnalysisService.GetCategoryYearTotals(_year);
+        _totals = await AnalysisService.GetCategoryYearTotals(SelectedYear);
+        BuildExpensePieSlices();
+        BuildIncomePieSlices();
+        _loading = false;
+    }
+
+    private async Task SelectedYearChanged(int newYear)
+    {
+        _loading = true;
+        SelectedYear = newYear;
+        _totals = await AnalysisService.GetCategoryYearTotals(SelectedYear);
         BuildExpensePieSlices();
         BuildIncomePieSlices();
         _loading = false;
@@ -177,7 +196,7 @@
     {
         _highlightedSlice = null;
     }
-    
+
     private string FormatHeaderWithLocalizedCurrencySymbol(string headerText)
         => CultureInfo.CurrentUICulture.NumberFormat.CurrencySymbol != "¤" && !string.IsNullOrEmpty(CultureInfo.CurrentUICulture.NumberFormat.CurrencySymbol)
             ? $"{headerText} ({CultureInfo.CurrentUICulture.NumberFormat.CurrencySymbol})"
