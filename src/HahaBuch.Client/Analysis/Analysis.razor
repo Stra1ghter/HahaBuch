@@ -16,7 +16,7 @@
 
     @if (_loading)
     {
-        <p>Loading analysis...</p>
+        <LoadingIndicator />
     }
     else
     {
@@ -41,8 +41,9 @@
             
             @if (_totals.Count == 0)
             {
-                <p>No data for @SelectedYear.</p>
+                <p class="text-center">@string.Format(@Loc["NoDataForYear"], SelectedYear)</p>
             }
+            else
             {
                 <div class="col-md-6 col-s-12">
                     <PieChart Slices="@(ExpenseSelected? _pieSlicesExpenses : _pieSlicesIncome)" 

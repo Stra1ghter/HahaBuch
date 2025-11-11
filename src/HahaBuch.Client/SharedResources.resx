@@ -240,6 +240,9 @@
   <data name="OptionalLabelSuffix" xml:space="preserve">
     <value>(optional)</value>
   </data>
+  <data name="NoDataForYear" xml:space="preserve">
+    <value>No data for selection in {0}.</value>
+  </data>
   <data name="Other" xml:space="preserve">
     <value>Other</value>
   </data>
