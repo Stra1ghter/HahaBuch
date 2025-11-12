@@ -15,7 +15,7 @@
     <h3>@Loc["Analysis"]</h3>
     <div class="row mt-3 mb-3 text-center">
         <RadioButtonGroup TOption="int"
-                           Options="@([SelectedYear - 1, SelectedYear, SelectedYear + 1])"
+                           Options="@(SelectedYear == DateTime.Now.Year ? [SelectedYear - 2, SelectedYear -1, SelectedYear ] : [SelectedYear - 1, SelectedYear, SelectedYear + 1])"
                            Value="SelectedYear"
                            ValueChanged="SelectedYearChanged"
                            LabelSelector="@((int year) => year.ToString())"
