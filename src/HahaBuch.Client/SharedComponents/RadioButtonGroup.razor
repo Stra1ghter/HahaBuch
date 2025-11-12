@@ -7,7 +7,8 @@
         {
             var option = OptionsList[i];
             var id = $"{Name}_option{i}";
-            <input type="radio"
+            <input @key=option
+                   type="radio"
                    class="btn-check"
                    name="@Name"
                    id="@id"
