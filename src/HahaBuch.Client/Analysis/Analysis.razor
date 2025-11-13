@@ -23,6 +23,10 @@
     </div>
 
     <div class="row mt-3 mb-3 text-center">
+        <MonthSelector @bind-Value=SelectedMonth />
+    </div>
+
+    <div class="row mt-3 mb-3 text-center">
         <RadioButtonGroup TOption="bool"
                            @bind-Value="ExpenseSelected"
                            Options="@([true, false])"
@@ -115,6 +119,7 @@
     private decimal _expenseSum = 0M;
     private decimal _incomeSum = 0M;
     private int SelectedYear = DateTime.Now.Year;
+    private int SelectedMonth = 0; // 0 means full year, 1 = January, ..., 12 = December
 
     protected override async Task OnInitializedAsync()
     {

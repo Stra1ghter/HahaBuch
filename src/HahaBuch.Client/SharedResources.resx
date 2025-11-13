@@ -183,6 +183,9 @@
   <data name="Expense" xml:space="preserve">
     <value>Expense</value>
   </data>
+  <data name="FullYear" xml:space="preserve">
+    <value>Full year</value>
+  </data>
   <data name="Actions" xml:space="preserve">
     <value>Actions</value>
   </data>

@@ -1,0 +1,37 @@
+﻿@using System.Globalization
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResources> Loc
+
+<RadioButtonGroup TOption="int"
+                  Options="Months"
+                  @bind-Value="SelectedMonth"
+                  LabelSelector="GetLabel"
+                  ButtonVariant="@ButtonVariant" />
+
+@code {
+    [Parameter] public int Value { get; set; }
+    [Parameter] public EventCallback<int> ValueChanged { get; set; }
+    [Parameter] public string ButtonVariant { get; set; } = "outline-secondary";
+    [Parameter] public CultureInfo? Culture { get; set; }
+
+    private static readonly int[] Months = Enumerable.Range(0, 13)
+                                                     .ToArray();
+
+    private int SelectedMonth
+    {
+        get => Value;
+        set
+        {
+            if (Value != value)
+            {
+                Value = value;
+                _ = ValueChanged.InvokeAsync(value);
+            }
+        }
+    }
+
+    private string GetLabel(int month) =>
+            month == 0
+            ? Loc["FullYear"]
+            : (Culture ?? CultureInfo.CurrentUICulture).DateTimeFormat.GetMonthName(month);
+}
