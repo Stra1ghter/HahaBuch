@@ -13,9 +13,9 @@ public class ClientAnalysisService : IAnalysisService
         this.httpClient = httpClient;
     }
 
-    public async Task<List<CategoryYearTotalDto>> GetCategoryYearTotals(int year)
+    public async Task<List<CategoryYearTotalDto>> GetCategoryYearTotals(int year, int month)
     {
-        return await httpClient.GetFromJsonAsync<List<CategoryYearTotalDto>>($"{BaseUrl}/categorytotals/{year}")
+        return await httpClient.GetFromJsonAsync<List<CategoryYearTotalDto>>($"{BaseUrl}/categorytotals/{year}/{month}")
                ?? new List<CategoryYearTotalDto>();
     }
 }
